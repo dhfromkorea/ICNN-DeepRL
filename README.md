@@ -1,7 +1,6 @@
-am221_icnn
-==============================
-
 am221 project on ICNN
+
+- project todos on trello: https://trello.com/b/xnKmZ4XY
 
 Project Organization
 ------------
@@ -53,4 +52,3 @@ Project Organization
 
 --------
 
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
