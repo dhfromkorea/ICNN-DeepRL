@@ -1,0 +1,3 @@
+[submodule "src/icnn"]
+	path = src/icnn
+	url = git@github.com:locuslab/icnn.git
