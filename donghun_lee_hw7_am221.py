@@ -6,7 +6,6 @@ import seaborn as sns
 sns.set(style='white', palette='Blues')
 from cvxpy import *
 
-
 columns = ['m1', 'm2', 'm3', 'm4', 'y']
 features = columns[:-1]
 
@@ -33,9 +32,7 @@ X = df.loc[:, features].as_matrix()
 #W = p.fit(X_modified)
 #print(W)
 
-
-
-num_lamdas = 10
+num_lamdas = 14
 lamdas = [1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1,1,10,100,1000,10000,1e5,1e6]
 
 W_list = []
