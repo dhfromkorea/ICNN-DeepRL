@@ -1,10 +1,13 @@
 
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set(style='white', palette='Blues')
 from cvxpy import *
+
 
 columns = ['m1', 'm2', 'm3', 'm4', 'y']
 features = columns[:-1]
