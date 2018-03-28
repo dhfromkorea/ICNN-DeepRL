@@ -52,3 +52,10 @@ Project Organization
 
 --------
 
+
+## Licensing
+
+Project | License
+---|---|
+| [locuslab/icnn](https://github.com/locuslab/icnn) | Apache 2.0 |
+| [SimonRamstedt/ddpg](https://github.com/SimonRamstedt/ddpg) | MIT |
