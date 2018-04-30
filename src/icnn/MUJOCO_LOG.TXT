@@ -1,3 +1,0 @@
-Mon Mar 26 14:28:09 2018
-ERROR: Invalid text in activation key
-
