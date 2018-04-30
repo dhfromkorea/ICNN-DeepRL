@@ -6,9 +6,9 @@ FLAGS = flags.FLAGS
 flags.DEFINE_integer('warmup', 3000, 'time without training but only filling the replay memory')
 flags.DEFINE_integer('bsize', 128, 'minibatch size')
 flags.DEFINE_integer('iter', 1, 'train iters each timestep')
-flags.DEFINE_integer('l1size', 200, '1st layer size')
-flags.DEFINE_integer('l2size', 200, '2nd layer size')
-flags.DEFINE_integer('rmsize', 50000, 'memory size')
+flags.DEFINE_integer('l1size', 128, '1st layer size')
+flags.DEFINE_integer('l2size', 64, '2nd layer size')
+flags.DEFINE_integer('rmsize', 20000, 'memory size')
 
 flags.DEFINE_float('tau', 0.01, 'moving average for target network')
 flags.DEFINE_float('discount', 0.99, '')
