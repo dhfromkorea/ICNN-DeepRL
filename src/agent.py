@@ -16,8 +16,8 @@ flags.DEFINE_float('l2norm', 0.001, 'l2 weight decay')
 flags.DEFINE_float('pl2norm', 0., 'policy network l2 weight decay (only for DDPG)')
 flags.DEFINE_float('rate', 0.01, 'learning rate')
 flags.DEFINE_float('prate', 0.001, 'policy net learning rate (only for DDPG)')
-flags.DEFINE_float('outheta', 0.15, 'noise theta') # ??
-flags.DEFINE_float('ousigma', 0.1, 'noise sigma') # ??
+flags.DEFINE_float('outheta', 0.15, 'noise theta') # large theta -> small noise
+flags.DEFINE_float('ousigma', 0.1, 'noise sigma') # minimum noise
 flags.DEFINE_float('lrelu', 0.01, 'leak relu rate')
 flags.DEFINE_boolean('naf_bn', False, 'enable NAF batch normalization')
 flags.DEFINE_boolean('icnn_bn', False, 'enable icnn batch normalization')
