@@ -26,7 +26,12 @@ def run(main, outdir):
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
+    path = os.path.join(outdir, "board", FLAGS.exp_id)
+    if not os.path.exists(path):
+        os.makedirs(path)
+
     print("outdir: " + outdir)
+    print("outdir for the experiment: " + path)
 
     if FLAGS.copy:
         shutil.copytree(run_folder, path, symlinks=True, ignore=shutil.ignore_patterns('.*'))
@@ -96,6 +101,7 @@ class Executor:
         type, value, tb = sys.exc_info()
         tbs = []
         tbm = []
+
         while tb is not None:
             stb = traceback.extract_tb(tb)
             filename = stb[0][0]

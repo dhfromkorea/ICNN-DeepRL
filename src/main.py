@@ -17,15 +17,20 @@ import runtime_env
 import time
 
 import setproctitle
+from datetime import datetime
+
 
 srcDir = os.path.dirname(os.path.realpath(__file__))
-rlDir = os.path.join(srcDir, '..')
+rlDir = os.path.join(srcDir, 'archive')
 plotScr = os.path.join(rlDir, 'plot-single.py')
+
+cur_date_time = datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M-%S')
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_string('env', '', 'gym environment')
 flags.DEFINE_string('outdir', 'output', 'output directory')
+flags.DEFINE_string('exp_id', cur_date_time, 'experiment name')
 flags.DEFINE_boolean('force', False, 'overwrite existing results')
 flags.DEFINE_integer('train', 5000, 'training timesteps between testing episodes')
 flags.DEFINE_integer('test', 5, 'testing episodes between training timesteps')

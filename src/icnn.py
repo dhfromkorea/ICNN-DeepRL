@@ -108,7 +108,7 @@ class Agent:
         optimize_q = optim_q.apply_gradients(grads_and_vars_q)
 
 
-        summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.outdir, 'board'),
+        summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.outdir, 'board', FLAGS.exp_id),
                                                 self.sess.graph)
         if FLAGS.icnn_opt == 'adam':
             tf.summary.scalar('Qvalue', tf.reduce_mean(q))

@@ -97,7 +97,10 @@ class Agent:
         with tf.control_dependencies([optimize_q]):
             train_q = tf.group(update_qt)
 
-        summary_writer = tf.train.SummaryWriter(os.path.join(FLAGS.outdir, 'board'), self.sess.graph)
+
+        import pdb;pdb.set_trace()
+
+        summary_writer = tf.train.SummaryWriter(os.path.join(FLAGS.outdir, 'board', FLAGS.exp_id), self.sess.graph)
         summary_list = []
         summary_list.append(tf.summary.scalar('Qvalue', tf.reduce_mean(q_train)))
         summary_list.append(tf.summary.scalar('loss', ms_td_error))
