@@ -1,4 +1,5 @@
 import os
+import time
 
 import numpy as np
 import numpy.random as npr
@@ -236,11 +237,15 @@ class Agent:
             xs = np.linspace(-1.+1e-8, 1.-1e-8, 100)
             ys = [func(obs[[0],:], [[xi]])[0] for xi in xs]
             fig = plt.figure()
-            plt.plot(xs, ys)
-            plt.plot(hist['act'][0,0,:], hist['f'][0,:], label='Adam')
+            plt.plot(xs, ys, alpha=0.5, linestyle="--")
+            plt.plot(hist['act'][0,0,:], hist['f'][0,:], label="Adam's trace")
             plt.legend()
-            fname = os.path.join(FLAGS.outdir, 'adamPlt.png')
-            print("Saving Adam plot to {}".format(fname))
+
+            os.makedirs(os.path.join(FLAGS.outdir, "adam"), exist_ok=True)
+            t = time.time()
+            fname = os.path.join(FLAGS.outdir, "adam", 'adam_plot_{}.png'.format(t))
+            if np.random.uniform() > 0.99:
+                print("Saving Adam plot to {}".format(fname))
             plt.savefig(fname)
             plt.close(fig)
         elif self.dimA == 2:
@@ -266,8 +271,11 @@ class Agent:
             plt.plot(adam_x[:,0], adam_x[:,1], label='Adam', color='k')
             plt.legend()
 
-            fname = os.path.join(FLAGS.outdir, 'adamPlt.png')
-            print("Saving Adam plot to {}".format(fname))
+            os.makedirs(os.path.join(FLAGS.outdir, "adam"), exist_ok=True)
+            t = time.time()
+            fname = os.path.join(FLAGS.outdir, "adam", 'adam_plot_{}.png'.format(t))
+            if np.random.uniform() > 0.99:
+                print("Saving Adam plot to {}".format(fname))
             plt.savefig(fname)
             plt.close(fig)
 
@@ -337,7 +345,7 @@ class Agent:
                 raise RuntimeError("Unrecognized ICNN optimizer: "+FLAGS.icnn_opt)
             #print('--- Optimizing for training')
             tflearn.is_training(False)
-            act2 = self.opt(f, ob2, plot=True)
+            act2 = self.opt(f, ob2, plot=FLAGS.adam_plot)
             tflearn.is_training(True)
 
             _, _, loss, td_error, _, _ = self._train(obs, act, rew, ob2, act2, term2, weights,

@@ -29,11 +29,13 @@ flags.DEFINE_float('eps', 1e-6, 'prioritized experience replay')
 flags.DEFINE_boolean('naf_bn', False, 'enable NAF batch normalization')
 flags.DEFINE_boolean('icnn_bn', False, 'enable icnn batch normalization')
 
+
 flags.DEFINE_string('icnn_opt', 'adam',
                     "ICNN's inner optimization routine. Options=[adam,bundle_entropy]")
 
 flags.DEFINE_integer('thread', 1, 'tensorflow threads')
 
+flags.DEFINE_boolean('adam_plot', False, 'show adam plot')
 flags.DEFINE_boolean('summary', False, 'use tensorboard log')
 
 flags.DEFINE_float('initstd', 0.01, 'weight init std (DDPG uses its own initialization)')
