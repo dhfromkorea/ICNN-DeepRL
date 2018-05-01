@@ -3,7 +3,7 @@ import tensorflow as tf
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer('warmup', 1000, 'time without training but only filling the replay memory')
+flags.DEFINE_integer('warmup', 3000, 'time without training but only filling the replay memory')
 flags.DEFINE_integer('bsize', 256, 'minibatch size')
 flags.DEFINE_integer('iter', 1, 'train iters each timestep')
 flags.DEFINE_integer('l1size', 200, '1st layer size')

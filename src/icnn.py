@@ -128,10 +128,10 @@ class Agent:
         tf.summary.scalar('reward', tf.reduce_mean(rew))
         merged = tf.summary.merge_all()
 
-        print('per weights shape', per_weight.get_shape())
-        print('multi td error^2 per weights shape', tf.multiply(tf.square(td_error), per_weight).get_shape())
+        #print('per weights shape', per_weight.get_shape())
+        #print('multi td error^2 per weights shape', tf.multiply(tf.square(td_error), per_weight).get_shape())
         ms_td_error = tf.reduce_sum(tf.multiply(tf.square(td_error), per_weight), 0)
-        print('ms td error shape', ms_td_error.get_shape())
+        #print('ms td error shape', ms_td_error.get_shape())
 
         # tf functions
         with self.sess.as_default():
@@ -325,8 +325,8 @@ class Agent:
             (obs, act, rew, ob2, term2, weights, batch_idxes) = experience
 
 
-            if np.sum(rew > 0.0) >0 :
-                print("good reward samples", 100*len(np.flatnonzero(rew > 00.0)) / FLAGS.bsize)
+            #if np.sum(rew > 0.0) >0 :
+            #    print("good reward samples", 100*len(np.flatnonzero(rew > 00.0)) / FLAGS.bsize)
             if FLAGS.icnn_opt == 'adam':
                 # f = self._opt_train_entr
                 f = self._fg_entr_target
@@ -337,14 +337,13 @@ class Agent:
                 raise RuntimeError("Unrecognized ICNN optimizer: "+FLAGS.icnn_opt)
             #print('--- Optimizing for training')
             tflearn.is_training(False)
-            act2 = self.opt(f, ob2)
+            act2 = self.opt(f, ob2, plot=True)
             tflearn.is_training(True)
 
             _, _, loss, td_error, _, _ = self._train(obs, act, rew, ob2, act2, term2, weights,
                                                       log=FLAGS.summary, global_step=self.t)
 
 
-            #td_errors = train(obses_t, actions, rewards, obses_tp1, dones, weights)
             new_priorities = np.abs(td_error) + FLAGS.eps
             self.rb.update_priorities(batch_idxes, new_priorities)
 

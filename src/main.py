@@ -137,9 +137,9 @@ class Experiment(object):
             term = (not test and timestep + 1 >= FLAGS.tmax) or term
 
             filtered_reward = self.env.filter_reward(reward)
-            #filtered_reward = reward
-            if reward > 0.0:
-                print("reached the goal with {} after {} steps".format(reward, timestep))
+
+            if reward > 90.0:
+                print("reached the goal after {} steps with reward {}".format(timestep, reward))
 
             start = time.clock()
             self.agent.observe(filtered_reward, term, observation, test=test)
