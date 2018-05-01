@@ -62,6 +62,8 @@ class Agent:
         obs = tf.placeholder(tf.float32, [None, dimO], "obs")
         act = tf.placeholder(tf.float32, [None, dimA], "act")
         rew = tf.placeholder(tf.float32, [None], "rew")
+        per_weight = tf.placeholder(tf.float32, [None], "per_weight")
+
         with tf.variable_scope('q'):
             negQ = self.negQ(obs, act)
         negQ_entr = negQ - entropy(act)
@@ -126,9 +128,14 @@ class Agent:
         tf.summary.scalar('reward', tf.reduce_mean(rew))
         merged = tf.summary.merge_all()
 
+        print('per weights shape', per_weight.get_shape())
+        print('multi td error^2 per weights shape', tf.multiply(tf.square(td_error), per_weight).get_shape())
+        ms_td_error = tf.reduce_sum(tf.multiply(tf.square(td_error), per_weight), 0)
+        print('ms td error shape', ms_td_error.get_shape())
+
         # tf functions
         with self.sess.as_default():
-            self._train = Fun([obs, act, rew, obs_target, act_target, term_target],
+            self._train = Fun([obs, act, rew, obs_target, act_target, term_target, per_weight],
                               [optimize_q, update_target, loss_q, td_error, q, q_target],
                               merged, summary_writer)
             self._fg = Fun([obs, act], [negQ, act_grad])
@@ -333,12 +340,12 @@ class Agent:
             act2 = self.opt(f, ob2)
             tflearn.is_training(True)
 
-            _, _, loss, td_errors, _, _ = self._train(obs, act, rew, ob2, act2, term2,
+            _, _, loss, td_error, _, _ = self._train(obs, act, rew, ob2, act2, term2, weights,
                                                       log=FLAGS.summary, global_step=self.t)
 
 
             #td_errors = train(obses_t, actions, rewards, obses_tp1, dones, weights)
-            new_priorities = np.abs(td_errors) + FLAGS.eps
+            new_priorities = np.abs(td_error) + FLAGS.eps
             self.rb.update_priorities(batch_idxes, new_priorities)
 
             self.sess.run(self.proj)
