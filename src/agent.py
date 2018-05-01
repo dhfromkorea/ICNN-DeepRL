@@ -3,7 +3,7 @@ import tensorflow as tf
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer('warmup', 10000, 'time without training but only filling the replay memory')
+flags.DEFINE_integer('warmup', 1000, 'time without training but only filling the replay memory')
 flags.DEFINE_integer('bsize', 256, 'minibatch size')
 flags.DEFINE_integer('iter', 1, 'train iters each timestep')
 flags.DEFINE_integer('l1size', 200, '1st layer size')
@@ -19,6 +19,13 @@ flags.DEFINE_float('prate', 0.0001, 'policy net learning rate (only for DDPG)')
 flags.DEFINE_float('outheta', 0.15, 'noise theta') # large theta -> small noise
 flags.DEFINE_float('ousigma', 0.1, 'noise sigma') # minimum noise
 flags.DEFINE_float('lrelu', 0.01, 'leak relu rate')
+
+
+flags.DEFINE_float('alpha', 0.6, 'prioritized experience replay')
+flags.DEFINE_float('beta0', 0.4, 'prioritized experience replay')
+flags.DEFINE_float('beta_iters', 100000, 'prioritized experience replay')
+flags.DEFINE_float('eps', 1e-6, 'prioritized experience replay')
+
 flags.DEFINE_boolean('naf_bn', False, 'enable NAF batch normalization')
 flags.DEFINE_boolean('icnn_bn', False, 'enable icnn batch normalization')
 

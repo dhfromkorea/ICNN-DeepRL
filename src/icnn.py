@@ -7,6 +7,8 @@ import tflearn
 
 import bundle_entropy
 from replay_memory import ReplayMemory
+from experience_replay import PrioritizedReplayBuffer
+from schedules import LinearSchedule
 from helper import variable_summaries
 
 import matplotlib as mpl
@@ -42,7 +44,13 @@ class Agent:
         else:
             raise RuntimeError("Unrecognized ICNN optimizer: "+FLAGS.icnn_opt)
 
-        self.rm = ReplayMemory(FLAGS.rmsize, dimO, dimA)
+        #self.rm = ReplayMemory(FLAGS.rmsize, dimO, dimA)
+
+        self.rb = PrioritizedReplayBuffer(FLAGS.rmsize, alpha=FLAGS.alpha)
+        self.beta_schedule = LinearSchedule(FLAGS.beta_iters,
+                                       initial_p=FLAGS.beta0,
+                                       final_p=1.0)
+
         self.sess = tf.Session(config=tf.ConfigProto(
             inter_op_parallelism_threads=FLAGS.thread,
             log_device_placement=False,
@@ -294,7 +302,9 @@ class Agent:
         if not test:
             self.t = self.t + 1
 
-            self.rm.enqueue(obs1, term, self.action, rew)
+            #self.rm.enqueue(obs1, term, self.action, rew)
+
+            self.rb.add(obs1, self.action, rew, obs2, float(term))
 
             if self.t > FLAGS.warmup:
                 for i in range(FLAGS.iter):
@@ -302,7 +312,11 @@ class Agent:
 
     def train(self):
         with self.sess.as_default():
-            obs, act, rew, ob2, term2, info = self.rm.minibatch(size=FLAGS.bsize)
+            #obs, act, rew, ob2, term2, info = self.rm.minibatch(size=FLAGS.bsize)
+
+            experience = self.rb.sample(batch_size, beta=beta_schedule.value(t))
+            (obs, act, rew, ob2, term2, weights, batch_idxes) = experience
+
 
             if np.sum(rew > 0.0) >0 :
                 print("good reward samples", 100*len(np.flatnonzero(rew > 00.0)) / FLAGS.bsize)
@@ -321,6 +335,13 @@ class Agent:
 
             _, _, loss = self._train(obs, act, rew, ob2, act2, term2,
                                      log=FLAGS.summary, global_step=self.t)
+
+            import pdb;pdb.set_trace()
+
+            td_errors = train(obses_t, actions, rewards, obses_tp1, dones, weights)
+            new_priorities = np.abs(td_errors) + prioritized_replay_eps
+            self.rb.update_priorities(batch_idxes, new_priorities)
+
             self.sess.run(self.proj)
             return loss
 
