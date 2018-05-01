@@ -293,14 +293,14 @@ class Agent:
         # train
         if not test:
             self.t = self.t + 1
-
             # hack for adding more good samples
-            if rew > 0:
+            exploration_end_t = 15000
+            if self.t > exploration_end_t or rew > 0:
                 # good experience probabiltiy of one
                 self.rm.enqueue(obs1, term, self.action, rew)
             else:
                 # bad experience probabilty of 0.3
-                if np.random.uniform(0, 1) > 0.7:
+                if np.random.uniform(0, 1) > 0.97:
                     self.rm.enqueue(obs1, term, self.action, rew)
 
             if self.t > FLAGS.warmup:
@@ -311,7 +311,7 @@ class Agent:
         with self.sess.as_default():
             obs, act, rew, ob2, term2, info = self.rm.minibatch(size=FLAGS.bsize)
 
-            if self.t % 1000 == 0:
+            if self.t % 500 == 0:
                 print("good reward samples", 100*len(np.flatnonzero(rew > 90.0)) / FLAGS.bsize)
             if FLAGS.icnn_opt == 'adam':
                 # f = self._opt_train_entr
