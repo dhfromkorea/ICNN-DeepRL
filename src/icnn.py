@@ -314,7 +314,7 @@ class Agent:
         with self.sess.as_default():
             #obs, act, rew, ob2, term2, info = self.rm.minibatch(size=FLAGS.bsize)
 
-            experience = self.rb.sample(batch_size, beta=beta_schedule.value(t))
+            experience = self.rb.sample(FLAGS.bsize, beta=self.beta_schedule.value(t))
             (obs, act, rew, ob2, term2, weights, batch_idxes) = experience
 
 
