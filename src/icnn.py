@@ -129,7 +129,7 @@ class Agent:
         # tf functions
         with self.sess.as_default():
             self._train = Fun([obs, act, rew, obs_target, act_target, term_target],
-                              [optimize_q, update_target, loss_q],
+                              [optimize_q, update_target, loss_q, td_error, q, q_target],
                               merged, summary_writer)
             self._fg = Fun([obs, act], [negQ, act_grad])
             self._fg_target = Fun([obs_target, act_target], [negQ_target, act_target_grad])
@@ -333,13 +333,12 @@ class Agent:
             act2 = self.opt(f, ob2)
             tflearn.is_training(True)
 
-            _, _, loss = self._train(obs, act, rew, ob2, act2, term2,
-                                     log=FLAGS.summary, global_step=self.t)
+            _, _, loss, td_errors, _, _ = self._train(obs, act, rew, ob2, act2, term2,
+                                                      log=FLAGS.summary, global_step=self.t)
 
-            import pdb;pdb.set_trace()
 
-            td_errors = train(obses_t, actions, rewards, obses_tp1, dones, weights)
-            new_priorities = np.abs(td_errors) + prioritized_replay_eps
+            #td_errors = train(obses_t, actions, rewards, obses_tp1, dones, weights)
+            new_priorities = np.abs(td_errors) + FLAGS.eps
             self.rb.update_priorities(batch_idxes, new_priorities)
 
             self.sess.run(self.proj)
@@ -457,7 +456,7 @@ class Fun:
             feeds[self._inputs[argpos]] = arg
 
         out = self._outputs + [self._summary_op] if log else self._outputs
-        res = self._session.run(out, feeds)
+        res = self._sesion.run(out, feeds)
 
 
         if log:
