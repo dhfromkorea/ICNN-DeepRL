@@ -463,7 +463,7 @@ class Fun:
             feeds[self._inputs[argpos]] = arg
 
         out = self._outputs + [self._summary_op] if log else self._outputs
-        res = self._sesion.run(out, feeds)
+        res = self._session.run(out, feeds)
 
 
         if log:
