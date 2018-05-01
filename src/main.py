@@ -48,8 +48,8 @@ setproctitle.setproctitle('ICNN.RL.{}.{}.{}'.format(
     FLAGS.env,FLAGS.model,FLAGS.tfseed))
 
 os.makedirs(FLAGS.outdir, exist_ok=True)
-with open(os.path.join(FLAGS.outdir, 'flags.json'), 'w') as f:
-    json.dump(FLAGS.__flags, f, indent=2, sort_keys=True)
+#with open(os.path.join(FLAGS.outdir, 'flags.json'), 'w') as f:
+    #json.dump(FLAGS.__flags, f, indent=2, sort_keys=True)
 
 if FLAGS.model == 'DDPG':
     import ddpg
