@@ -303,7 +303,9 @@ class Agent:
     def train(self):
         with self.sess.as_default():
             obs, act, rew, ob2, term2, info = self.rm.minibatch(size=FLAGS.bsize)
-            print("good reward samples", 100*len(np.flatnonzero(rew > 90.0)) / FLAGS.bsize)
+
+            if self.t % 100 == 0:
+                print("good reward samples", 100*len(np.flatnonzero(rew > 90.0)) / FLAGS.bsize)
             if FLAGS.icnn_opt == 'adam':
                 # f = self._opt_train_entr
                 f = self._fg_entr_target
