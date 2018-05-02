@@ -334,7 +334,7 @@ class Agent:
 
 
             if np.random.uniform() > 0.7 and np.sum(rew > 0.0) >0 :
-                print("good reward samples", 100*np.sum(np.flatnonzero(rew > 0.0)) / FLAGS.bsize)
+                print("good reward samples", 100*np.sum(rew > 0.0) / FLAGS.bsize)
             if FLAGS.icnn_opt == 'adam':
                 # f = self._opt_train_entr
                 f = self._fg_entr_target
