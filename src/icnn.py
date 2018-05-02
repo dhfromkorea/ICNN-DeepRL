@@ -333,8 +333,8 @@ class Agent:
             (obs, act, rew, ob2, term2, weights, batch_idxes) = experience
 
 
-            #if np.sum(rew > 0.0) >0 :
-            #    print("good reward samples", 100*len(np.flatnonzero(rew > 00.0)) / FLAGS.bsize)
+            if np.random.uniform() > 0.7 and np.sum(rew > 0.0) >0 :
+                print("good reward samples", 100*np.sum(np.flatnonzero(rew > 0.0)) / FLAGS.bsize)
             if FLAGS.icnn_opt == 'adam':
                 # f = self._opt_train_entr
                 f = self._fg_entr_target
