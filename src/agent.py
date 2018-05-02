@@ -22,7 +22,7 @@ flags.DEFINE_float('lrelu', 0.01, 'leak relu rate')
 
 
 flags.DEFINE_float('alpha', 0.6, 'prioritized experience replay')
-flags.DEFINE_float('beta0', 0.4, 'prioritized experience replay')
+flags.DEFINE_float('beta0', 0.9, 'prioritized experience replay')
 flags.DEFINE_float('beta_iters', 100000, 'prioritized experience replay')
 flags.DEFINE_float('eps', 1e-6, 'prioritized experience replay')
 
