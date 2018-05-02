@@ -1,5 +1,6 @@
 # tensorflow
-src/icnn/output/board/
+src/output/
+src/archive/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

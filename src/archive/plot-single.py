@@ -13,8 +13,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('expDir', type=str)
     parser.add_argument('--xmax', type=float)
-    parser.add_argument('--ymin', type=float, default=0.0)
+    parser.add_argument('--ymin', type=float)
     parser.add_argument('--ymax', type=float)
+    #parser.add_argument('--ymin', type=float, default=-1.0)
+    #parser.add_argument('--ymax', type=float, default=1.0)
     args = parser.parse_args()
 
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
