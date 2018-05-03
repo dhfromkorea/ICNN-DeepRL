@@ -75,7 +75,7 @@ def main():
         #dy = D_test_y.std(axis=0)
         #plt.errorbar(D_test_x.mean(axis=0), D_test_y.mean(axis=0), label="test", yerr=dy, fmt="o", color="b")
 
-        plt.plot(D_test_x.mean(axis=0), D_test_y.mean(axis=0), label="train", marker="x",
+        plt.plot(D_test_x.mean(axis=0), D_test_y.mean(axis=0), label="test", marker="x",
                 linestyle="--", color="b")
 
         #N = 3
