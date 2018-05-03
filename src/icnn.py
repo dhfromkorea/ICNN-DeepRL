@@ -23,6 +23,8 @@ from sklearn.decomposition import PCA
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
+model_path = os.path.join(FLAGS.outdir, FLAGS.model)
+
 # Input Convex Neural Network
 
 class Agent:
@@ -45,12 +47,14 @@ class Agent:
         else:
             raise RuntimeError("Unrecognized ICNN optimizer: "+FLAGS.icnn_opt)
 
-        #self.rm = ReplayMemory(FLAGS.rmsize, dimO, dimA)
+        if FLAGS.use_per:
+            self.rm = PrioritizedReplayBuffer(FLAGS.rmsize, alpha=FLAGS.alpha)
+            self.beta_schedule = LinearSchedule(FLAGS.beta_iters,
+                                                initial_p=FLAGS.beta0,
+                                                final_p=1.0)
+        else:
+            self.rm = ReplayMemory(FLAGS.rmsize, dimO, dimA)
 
-        self.rb = PrioritizedReplayBuffer(FLAGS.rmsize, alpha=FLAGS.alpha)
-        self.beta_schedule = LinearSchedule(FLAGS.beta_iters,
-                                       initial_p=FLAGS.beta0,
-                                       final_p=1.0)
 
         self.sess = tf.Session(config=tf.ConfigProto(
             inter_op_parallelism_threads=FLAGS.thread,
@@ -98,7 +102,11 @@ class Agent:
             q_target = tf.minimum(q_entropy + 1., q_target)
             q_target = tf.stop_gradient(q_target)
             td_error = q_entropy - q_target
-        ms_td_error = tf.reduce_mean(tf.square(td_error), 0)
+
+        if FLAGS.use_per:
+            ms_td_error = tf.reduce_sum(tf.multiply(tf.square(td_error), per_weight), 0)
+        else:
+            ms_td_error = tf.reduce_mean(tf.square(td_error), 0)
 
         regLosses = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES, scope='q/')
         loss_q = ms_td_error + l2norm*tf.reduce_sum(regLosses)
@@ -119,21 +127,19 @@ class Agent:
         grads_and_vars_q = optim_q.compute_gradients(loss_q)
         optimize_q = optim_q.apply_gradients(grads_and_vars_q)
 
+        summary_path = os.path.join(model_path, 'board', FLAGS.exp_id)
+        summary_writer = tf.summary.FileWriter(summary_path, self.sess.graph)
 
-        summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.outdir, 'board', FLAGS.exp_id),
-                                                self.sess.graph)
         if FLAGS.icnn_opt == 'adam':
-            tf.summary.scalar('Qvalue', tf.reduce_mean(q))
+            tf.summary.scalar('Q', tf.reduce_mean(q))
         elif FLAGS.icnn_opt == 'bundle_entropy':
-            tf.summary.scalar('Qvalue', tf.reduce_mean(q_entr))
+            tf.summary.scalar('Q', tf.reduce_mean(q_entr))
+
+        tf.summary.scalar('Q_target', tf.reduce_mean(q_target))
         tf.summary.scalar('loss', ms_td_error)
         tf.summary.scalar('reward', tf.reduce_mean(rew))
         merged = tf.summary.merge_all()
 
-        #print('per weights shape', per_weight.get_shape())
-        #print('multi td error^2 per weights shape', tf.multiply(tf.square(td_error), per_weight).get_shape())
-        ms_td_error = tf.reduce_sum(tf.multiply(tf.square(td_error), per_weight), 0)
-        #print('ms td error shape', ms_td_error.get_shape())
 
         # tf functions
         with self.sess.as_default():
@@ -148,7 +154,7 @@ class Agent:
 
         # initialize tf variables
         self.saver = tf.train.Saver(max_to_keep=1)
-        ckpt = tf.train.latest_checkpoint(FLAGS.outdir + "/tf")
+        ckpt = tf.train.latest_checkpoint(model_path + "/tf")
         if ckpt:
             self.saver.restore(self.sess, ckpt)
         else:
@@ -242,9 +248,9 @@ class Agent:
             plt.plot(hist['act'][0,0,:], hist['f'][0,:], label="Adam's trace")
             plt.legend()
 
-            os.makedirs(os.path.join(FLAGS.outdir, "adam"), exist_ok=True)
+            os.makedirs(os.path.join(model_path, "adam"), exist_ok=True)
             t = time.time()
-            fname = os.path.join(FLAGS.outdir, "adam", 'adam_plot_{}.png'.format(t))
+            fname = os.path.join(model_path, "adam", 'adam_plot_{}.png'.format(t))
             plt.savefig(fname)
             plt.close(fig)
         elif self.dimA == 2:
@@ -270,9 +276,9 @@ class Agent:
             plt.plot(adam_x[:,0], adam_x[:,1], label='Adam', color='k')
             plt.legend()
 
-            os.makedirs(os.path.join(FLAGS.outdir, "adam"), exist_ok=True)
+            os.makedirs(os.path.join(model_path, "adam"), exist_ok=True)
             t = time.time()
-            fname = os.path.join(FLAGS.outdir, "adam", 'adam_plot_{}.png'.format(t))
+            fname = os.path.join(model_path, "adam", 'adam_plot_{}.png'.format(t))
             plt.savefig(fname)
             plt.close(fig)
 
@@ -314,9 +320,10 @@ class Agent:
         if not test:
             self.t = self.t + 1
 
-            #self.rm.enqueue(obs1, term, self.action, rew)
-
-            self.rb.add(obs1, self.action, rew, obs2, float(term))
+            if FLAGS.use_per:
+                self.rm.add(obs1, self.action, rew, obs2, float(term))
+            else:
+                self.rm.enqueue(obs1, term, self.action, rew)
 
             if self.t > FLAGS.warmup:
                 for i in range(FLAGS.iter):
@@ -324,10 +331,12 @@ class Agent:
 
     def train(self):
         with self.sess.as_default():
-            #obs, act, rew, ob2, term2, info = self.rm.minibatch(size=FLAGS.bsize)
+            if FLAGS.use_per:
+                experience = self.rm.sample(FLAGS.bsize, beta=self.beta_schedule.value(self.t))
+                (obs, act, rew, ob2, term2, weights, batch_idxes) = experience
+            else:
+                obs, act, rew, ob2, term2, info = self.rm.minibatch(size=FLAGS.bsize)
 
-            experience = self.rb.sample(FLAGS.bsize, beta=self.beta_schedule.value(self.t))
-            (obs, act, rew, ob2, term2, weights, batch_idxes) = experience
 
 
             #if np.random.uniform() > 0.7 and np.sum(rew > 0.0) >0 :
@@ -345,12 +354,15 @@ class Agent:
             act2 = self.opt(f, ob2, plot=FLAGS.adam_plot)
             tflearn.is_training(True)
 
-            _, _, loss, td_error, _, _ = self._train(obs, act, rew, ob2, act2, term2, weights,
-                                                      log=FLAGS.summary, global_step=self.t)
+            _, _, loss, td_error, _, _ = self._train(obs, act, rew, ob2, act2,
+                                                     term2, weights,
+                                                     log=FLAGS.summary,
+                                                     global_step=self.t)
 
 
-            new_priorities = np.abs(td_error) + FLAGS.eps
-            self.rb.update_priorities(batch_idxes, new_priorities)
+            if FLAGS.use_per:
+                new_priorities = np.abs(td_error) + FLAGS.eps
+                self.rm.update_priorities(batch_idxes, new_priorities)
 
             self.sess.run(self.proj)
             return loss
