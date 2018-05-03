@@ -90,7 +90,8 @@ class Experiment(object):
         test_log = open(os.path.join(model_path, 'test_{}.log'.format(trial_i)), 'w')
         train_log = open(os.path.join(model_path, 'train_{}.log'.format(trial_i)), 'w')
 
-        while self.train_timestep < FLAGS.total:
+        #while self.train_timestep < FLAGS.total:
+        while self.episode < FLAGS.total_episode:
             # test
             reward_list = []
             for _ in range(FLAGS.test):

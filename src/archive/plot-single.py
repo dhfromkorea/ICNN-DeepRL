@@ -25,7 +25,7 @@ def main():
     args = parser.parse_args()
 
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
-    plt.xlabel('Timestep')
+    plt.xlabel('Episode')
     plt.ylabel('Reward')
 
     model_path = args.model_path
@@ -50,7 +50,7 @@ def main():
             D_train_y = trainData[:,1]
             D_test_x = testData[:,0]
             D_test_y = testData[:,1]
-            import pdb;pdb.set_trace()
+
             n_step_train = D_train_x.shape[0]
             n_step_test = D_test_x.shape[0]
 
