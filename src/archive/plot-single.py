@@ -66,8 +66,7 @@ def main():
         #plt.plot(trainData[:,0], trainData[:,1], label="train", c="r")
         dy = D_train_y.std(axis=0)
         #plt.errorbar(D_train_x.mean(axis=0), D_train_y.mean(axis=0), label="train", yerr=dy, fmt="o", color="r")
-        plt.plot(D_train_x.mean(axis=0), D_train_y.mean(axis=0), label="train", marker="o",
-                linestyle="--", color="r")
+        plt.plot(D_train_x.mean(axis=0), D_train_y.mean(axis=0), label="train", color="r")
 
     if D_test_x.shape[0] > 1:
         #testI = testData[:,0]
@@ -76,8 +75,7 @@ def main():
         #dy = D_test_y.std(axis=0)
         #plt.errorbar(D_test_x.mean(axis=0), D_test_y.mean(axis=0), label="test", yerr=dy, fmt="o", color="b")
 
-        plt.plot(D_test_x.mean(axis=0), D_test_y.mean(axis=0), label="train", marker="x",
-                linestyle="--", color="b")
+        plt.plot(D_test_x.mean(axis=0), D_test_y.mean(axis=0), label="train", marker="x", color="b")
 
         N = 3
         testI = D_test_x.mean(axis=0)
