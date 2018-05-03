@@ -98,6 +98,11 @@ class Experiment(object):
             for _ in range(FLAGS.test):
                 reward, timestep = self.run_episode(
                     test=True, monitor=np.random.rand() < FLAGS.monitor)
+
+                if reward > 50.0:
+                    sys.stdout.flush()
+                    sys.stdout.write("\rreached the goal after {} steps with reward {}".format(timestep, reward))
+
                 reward_list.append(reward)
                 self.test_timestep += timestep
             avg_reward = np.mean(reward_list)
@@ -146,9 +151,6 @@ class Experiment(object):
             term = (not test and timestep + 1 >= FLAGS.tmax) or term
 
             filtered_reward = self.env.filter_reward(reward)
-
-            if reward > 0.0:
-                print("reached the goal after {} steps with reward {}".format(timestep, reward))
 
             start = time.clock()
             self.agent.observe(filtered_reward, term, observation, test=test)

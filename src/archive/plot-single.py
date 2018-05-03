@@ -18,10 +18,10 @@ def main():
     parser.add_argument('--model', type=str)
     parser.add_argument('--n_trial', type=int, default=1)
     parser.add_argument('--xmax', type=float)
-    #parser.add_argument('--ymin', type=float, default=-100.0)
-    #parser.add_argument('--ymax', type=float, default=100.0)
-    parser.add_argument('--ymin', type=float)
-    parser.add_argument('--ymax', type=float)
+    parser.add_argument('--ymin', type=float, default=-100.0)
+    parser.add_argument('--ymax', type=float, default=100.0)
+    #parser.add_argument('--ymin', type=float)
+    #parser.add_argument('--ymax', type=float)
     args = parser.parse_args()
 
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
@@ -65,21 +65,26 @@ def main():
     if D_train_x.shape[0] > 1:
         #plt.plot(trainData[:,0], trainData[:,1], label="train", c="r")
         dy = D_train_y.std(axis=0)
-        plt.errorbar(D_train_x.mean(axis=0), D_train_y.mean(axis=0), label="train", yerr=dy, fmt="o", color="r")
+        #plt.errorbar(D_train_x.mean(axis=0), D_train_y.mean(axis=0), label="train", yerr=dy, fmt="o", color="r")
+        plt.plot(D_train_x.mean(axis=0), D_train_y.mean(axis=0), label="train", marker="o",
+                linestyle="--", color="r")
 
     if D_test_x.shape[0] > 1:
         #testI = testData[:,0]
         #testRew = testData[:,1]
         #plt.plot(testI, testRew, label="test", c="b")
-        dy = D_test_y.std(axis=0)
-        plt.errorbar(D_test_x.mean(axis=0), D_test_y.mean(axis=0), label="test", yerr=dy, fmt="o", color="b")
+        #dy = D_test_y.std(axis=0)
+        #plt.errorbar(D_test_x.mean(axis=0), D_test_y.mean(axis=0), label="test", yerr=dy, fmt="o", color="b")
+
+        plt.plot(D_test_x.mean(axis=0), D_test_y.mean(axis=0), label="train", marker="x",
+                linestyle="--", color="b")
 
         N = 3
         testI = D_test_x.mean(axis=0)
         testRew = D_test_y.mean(axis=0)
         testI_ = testI[N:]
         testRew_ = [sum(testRew[i-N:i])/N for i in range(N, len(testRew))]
-        plt.plot(testI_, testRew_, label="rolling test", c="g")
+        plt.plot(testI_, testRew_, label="rolling test", c="g", alpha=0.3)
 
     plt.ylim([args.ymin, args.ymax])
     plt.legend()
