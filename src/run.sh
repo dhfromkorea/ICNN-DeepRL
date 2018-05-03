@@ -1,6 +1,6 @@
 #!/bin/bash
 
-n_trial=5
+n_trial=1
 env=MountainCarContinuous-v0
 
 python3 main.py --model ICNN --env $env --outdir output --total_episode 1000 --train_episode 100 \

@@ -178,10 +178,13 @@ class Experiment(object):
 
 
 def main():
-    for i in tqdm(range(FLAGS.n_trial)):
-        with tf.Graph().as_default():
-            exp = Experiment()
-            exp.run(i)
+    #for i in tqdm(range(FLAGS.n_trial)):
+    #    tf.reset_default_graph()
+    #    with tf.Graph().as_default():
+    #        exp = Experiment()
+    #        exp.run(i)
+
+    Experiment().run(0)
 
     model_path = os.path.join(FLAGS.outdir, FLAGS.model)
     os.system('{} --model_path {} --model {} --n_trial {}'.format(plotScr, model_path, FLAGS.model,
