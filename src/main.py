@@ -101,18 +101,21 @@ class Experiment(object):
             # test
             reward_list = []
             for _ in range(FLAGS.test):
+                #reward, timestep = self.run_episode(
+                #    test=True, monitor=np.random.rand() < FLAGS.monitor)
                 reward, timestep = self.run_episode(
-                    test=True, monitor=np.random.rand() < FLAGS.monitor)
+                    test=True, monitor=False)
 
                 if reward > 50.0:
-                    print("Train: reached the goal after {} steps with reward {}".format(timestep, reward))
+                    print("Train: reached the goal after {} steps with reward at {}-th
+                            episode".format(timestep, reward, self.episode))
 
                 reward_list.append(reward)
                 self.test_timestep += timestep
             avg_reward = np.mean(reward_list)
 
-            print('\nAverage test: return {} after {} timestep of training.\n\n'.format(
-                avg_reward, self.train_timestep))
+            print('\nAverage test: return {} after {} timestep of training at {}-th episode.\n\n'.format(
+                avg_reward, self.train_timestep, self.episode))
             #test_log.write("{}\t{}\n".format(self.train_timestep, avg_reward))
             test_log.write("{}\t{}\n".format(self.episode, avg_reward))
             test_log.flush()
