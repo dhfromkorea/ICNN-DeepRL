@@ -80,8 +80,11 @@ class Experiment(object):
         pprint.pprint(self.env.spec.__dict__)
 
         self.agent = Agent(dimO, dimA=dimA)
-        test_log = open(os.path.join(FLAGS.outdir, 'test.log'), 'w')
-        train_log = open(os.path.join(FLAGS.outdir, 'train.log'), 'w')
+
+        model_path = os.path.join(FLAGS.outdir, FLAGS.model)
+        os.makedirs(model_path, exist_ok=True)
+        test_log = open(os.path.join(model_path, 'test.log'), 'w')
+        train_log = open(os.path.join(model_path, 'train.log'), 'w')
 
         while self.train_timestep < FLAGS.total:
             # test
@@ -111,11 +114,12 @@ class Experiment(object):
             #print('Average train return {} after {} timestep of training.'.format(
                 #avg_reward, self.train_timestep))
 
-            os.system('{} {}'.format(plotScr, FLAGS.outdir))
+            #os.system('{} {}'.format(plotScr, FLAGS.outdir))
+            os.system('{} {}'.format(plotScr, model_path))
 
         #self.env.monitor.close()
-        os.makedirs(os.path.join(FLAGS.outdir, "tf"))
-        ckpt = os.path.join(FLAGS.outdir, "tf/model.ckpt")
+        os.makedirs(os.path.join(model_path, "tf"))
+        ckpt = os.path.join(model_path, "tf/model.ckpt")
         self.agent.saver.save(self.agent.sess, ckpt)
 
     def run_episode(self, test=True, monitor=False):
