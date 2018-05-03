@@ -69,7 +69,7 @@ class Agent:
         # q targets
         q2 = nets.qfunction(obs2, tf.constant([0.] * FLAGS.bsize),
                             self.theta_Vt, True, is_training)
-        q_target = tf.stop_gradient(tf.select(term2, rew, rew + discount * q2))
+        q_target = tf.stop_gradient(tf.where(term2, rew, rew + discount * q2))
 
         # q loss
         td_error = q_train - q_target

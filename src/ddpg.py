@@ -83,7 +83,7 @@ class Agent:
         # q targets
         act2 = nets.policy(obs2, theta=self.theta_pt)
         q2 = nets.qfunction(obs2, act2, theta=self.theta_qt)
-        q_target = tf.stop_gradient(tf.select(term2, rew, rew + discount * q2))
+        q_target = tf.stop_gradient(tf.where(term2, rew, rew + discount * q2))
         # q_target = tf.stop_gradient(rew + discount * q2)
         # q loss
         td_error = q_train - q_target
@@ -98,20 +98,20 @@ class Agent:
             train_q = tf.group(update_qt)
 
 
-        import pdb;pdb.set_trace()
-
-        summary_writer = tf.train.SummaryWriter(os.path.join(FLAGS.outdir, 'board', FLAGS.exp_id), self.sess.graph)
+        summary_writer = tf.summary.FileWriter(os.path.join(FLAGS.outdir, 'board', FLAGS.exp_id), self.sess.graph)
         summary_list = []
         summary_list.append(tf.summary.scalar('Qvalue', tf.reduce_mean(q_train)))
         summary_list.append(tf.summary.scalar('loss', ms_td_error))
         summary_list.append(tf.summary.scalar('reward', tf.reduce_mean(rew)))
+        merged = tf.summary.merge_all()
 
         # tf functions
         with self.sess.as_default():
             self._act_test = Fun(obs, act_test)
             self._act_expl = Fun(obs, act_expl)
             self._reset = Fun([], self.ou_reset)
-            self._train = Fun([obs, act_train, rew, obs2, term2], [train_p, train_q, loss_q], summary_list, summary_writer)
+            self._train = Fun([obs, act_train, rew, obs2, term2], [train_p, train_q, loss_q],
+                 merged, summary_writer)
 
         # initialize tf variables
         self.saver = tf.train.Saver(max_to_keep=1)

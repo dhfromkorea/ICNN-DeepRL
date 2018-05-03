@@ -77,6 +77,7 @@ class Agent:
         act_target = tf.placeholder(tf.float32, [None, dimA], "act_target")
         term_target = tf.placeholder(tf.bool, [None], "term_target")
         with tf.variable_scope('q_target'):
+            # double Q
             negQ_target = self.negQ(obs_target, act_target)
         negQ_entr_target = negQ_target - entropy(act_target)
         act_target_grad, = tf.gradients(negQ_target, act_target)
@@ -244,8 +245,6 @@ class Agent:
             os.makedirs(os.path.join(FLAGS.outdir, "adam"), exist_ok=True)
             t = time.time()
             fname = os.path.join(FLAGS.outdir, "adam", 'adam_plot_{}.png'.format(t))
-            if np.random.uniform() > 0.99:
-                print("Saving Adam plot to {}".format(fname))
             plt.savefig(fname)
             plt.close(fig)
         elif self.dimA == 2:
@@ -274,8 +273,6 @@ class Agent:
             os.makedirs(os.path.join(FLAGS.outdir, "adam"), exist_ok=True)
             t = time.time()
             fname = os.path.join(FLAGS.outdir, "adam", 'adam_plot_{}.png'.format(t))
-            if np.random.uniform() > 0.99:
-                print("Saving Adam plot to {}".format(fname))
             plt.savefig(fname)
             plt.close(fig)
 
