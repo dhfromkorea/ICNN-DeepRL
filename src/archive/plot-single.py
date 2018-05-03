@@ -25,8 +25,8 @@ def main():
     args = parser.parse_args()
 
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
-    plt.xlabel('Episode')
-    plt.ylabel('Reward')
+    plt.xlabel('Episode', fontsize=20.0)
+    plt.ylabel('Reward', fontsize=20.0)
 
     model_path = args.model_path
     model = args.model
@@ -86,8 +86,8 @@ def main():
         #plt.plot(testI_, testRew_, label="rolling test", c="g", alpha=0.3)
 
     plt.ylim([args.ymin, args.ymax])
-    plt.legend()
-    fname = os.path.join(model_path, "reward.png")
+    plt.legend(fontsize=20.0)
+    fname = os.path.join(model_path, "reward_{}.png".format(model))
     plt.savefig(fname, format="png", bbox_inches="tight")
     print('Created {}'.format(fname))
 

@@ -122,7 +122,7 @@ class Experiment(object):
             #last_checkpoint = np.floor(self.train_timestep / FLAGS.train)
             #while np.floor(self.train_timestep / FLAGS.episode_train) == last_checkpoint:
             last_checkpoint = self.episode
-            for _ in range(FLAGS.episode_train):
+            for _ in range(FLAGS.train_episode):
                 #print('=== Running episode')
                 reward, timestep = self.run_episode(test=False, monitor=False)
                 reward_list.append(reward)
