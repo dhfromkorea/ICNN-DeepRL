@@ -21,6 +21,7 @@ flags.DEFINE_float('ousigma', 0.2, 'noise sigma') # minimum noise
 flags.DEFINE_float('lrelu', 0.01, 'leak relu rate')
 
 
+flags.DEFINE_boolean('use_per', True, 'enable Prioritized Experience Replay')
 flags.DEFINE_float('alpha', 0.6, 'prioritized experience replay')
 flags.DEFINE_float('beta0', 0.9, 'prioritized experience replay')
 flags.DEFINE_float('beta_iters', 100000, 'prioritized experience replay')
