@@ -107,7 +107,7 @@ class Experiment(object):
                     test=True, monitor=False)
 
                 if reward > 50.0:
-                    print("Train: reached the goal after {} steps with reward at {}-th
+                    print("Train: reached the goal after {} steps with reward at {}-th \
                             episode".format(timestep, reward, self.episode))
 
                 reward_list.append(reward)
