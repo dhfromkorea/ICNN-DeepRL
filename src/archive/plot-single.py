@@ -16,10 +16,8 @@ def main():
     parser.add_argument('--model_path', type=str)
     parser.add_argument('--model', type=str)
     parser.add_argument('--xmax', type=float)
-    parser.add_argument('--ymin', type=float)
-    parser.add_argument('--ymax', type=float)
-    #parser.add_argument('--ymin', type=float, default=-1.0)
-    #parser.add_argument('--ymax', type=float, default=1.0)
+    parser.add_argument('--ymin', type=float, default=-100.0)
+    parser.add_argument('--ymax', type=float, default=100.0)
     args = parser.parse_args()
 
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
@@ -30,24 +28,21 @@ def main():
     model = args.model
     t = time.time()
 
-    trainP = os.path.join(model_path, 'train_{}.log'.format(model))
+    trainP = os.path.join(model_path, 'train.log')
     trainData = np.loadtxt(trainP).reshape(-1, 2)
-    testP = os.path.join(model_path, 'test_{}.log'.format(model))
+    testP = os.path.join(model_path, 'test.log')
     testData = np.loadtxt(testP).reshape(-1, 2)
     if trainData.shape[0] > 1:
-        label = '{}_train'.format(FLAGS.model)
-        plt.plot(trainData[:,0], trainData[:,1], label=label, c="r")
+        plt.plot(trainData[:,0], trainData[:,1], label="train", c="r")
     if testData.shape[0] > 1:
-        label = '{}_test'.format(FLAGS.model)
         testI = testData[:,0]
         testRew = testData[:,1]
-        plt.plot(testI, testRew, label=label, c="b")
+        plt.plot(testI, testRew, label="test", c="b")
 
-        N = 10
+        N = 3
         testI_ = testI[N:]
         testRew_ = [sum(testRew[i-N:i])/N for i in range(N, len(testRew))]
-        label = '{}_rolling'.format(FLAGS.model)
-        plt.plot(testI_, testRew_, label=label, c="g")
+        plt.plot(testI_, testRew_, label="rolling test", c="g")
 
     plt.ylim([args.ymin, args.ymax])
     plt.legend()
