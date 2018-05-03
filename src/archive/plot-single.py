@@ -8,14 +8,13 @@ import time
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
-plt.style.use('bmh')
+#plt.style.use('bmh')
 
-flags = tf.app.flags
-FLAGS = flags.FLAGS
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('expDir', type=str)
+    parser.add_argument('--model_path', type=str)
+    parser.add_argument('--model', type=str)
     parser.add_argument('--xmax', type=float)
     parser.add_argument('--ymin', type=float)
     parser.add_argument('--ymax', type=float)
@@ -27,12 +26,13 @@ def main():
     plt.xlabel('Timestep')
     plt.ylabel('Reward')
 
-    model_path = os.path.join(FLAGS.outdir, FLAGS.model)
+    model_path = args.model_path
+    model = args.model
     t = time.time()
 
-    trainP = os.path.join(model_path, 'train_{}.log'.format(FLAGS.model))
+    trainP = os.path.join(model_path, 'train_{}.log'.format(model))
     trainData = np.loadtxt(trainP).reshape(-1, 2)
-    testP = os.path.join(model_path, 'test_{}.log'.format(FLAGS.model))
+    testP = os.path.join(model_path, 'test_{}.log'.format(model))
     testData = np.loadtxt(testP).reshape(-1, 2)
     if trainData.shape[0] > 1:
         label = '{}_train'.format(FLAGS.model)

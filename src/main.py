@@ -115,7 +115,7 @@ class Experiment(object):
                 #avg_reward, self.train_timestep))
 
             #os.system('{} {}'.format(plotScr, FLAGS.outdir))
-            os.system('{} {}'.format(plotScr, model_path))
+            os.system('{} --model_path {} --model {}'.format(plotScr, model_path, FLAGS.model))
 
         #self.env.monitor.close()
         os.makedirs(os.path.join(model_path, "tf"))
