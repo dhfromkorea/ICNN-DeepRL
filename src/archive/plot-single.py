@@ -62,7 +62,7 @@ def main():
 
 
 
-    if D_train_x.shape[1] > 1:
+    if len(D_train_x.shape) > 1:
         #plt.plot(trainData[:,0], trainData[:,1], label="train", c="r")
         #dy = D_train_y.std(axis=0)
         #plt.errorbar(D_train_x.mean(axis=0), D_train_y.mean(axis=0), label="train", yerr=dy, fmt="o", color="r")
@@ -70,7 +70,7 @@ def main():
     else:
         plt.plot(D_train_x, D_train_y, label="train", color="r")
 
-    if D_test_x.shape[1] > 1:
+    if len(D_test_x.shape) > 1:
         #testI = testData[:,0]
         #testRew = testData[:,1]
         #plt.plot(testI, testRew, label="test", c="b")
