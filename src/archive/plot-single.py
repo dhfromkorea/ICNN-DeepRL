@@ -25,6 +25,7 @@ def main():
     args = parser.parse_args()
 
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
+    plt.title(model, fontsize=20.0)
     plt.xlabel('Episode', fontsize=20.0)
     plt.ylabel('Reward', fontsize=20.0)
 
@@ -92,7 +93,7 @@ def main():
 
     plt.ylim([args.ymin, args.ymax])
     plt.xlim([0, args.xmax])
-    plt.legend(fontsize=20.0)
+    plt.legend(fontsize=15.0, loc='best')
     fname = os.path.join(model_path, "reward_{}.png".format(model))
     plt.savefig(fname, format="png", bbox_inches="tight")
     print('Created {}'.format(fname))
