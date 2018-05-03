@@ -17,7 +17,7 @@ def main():
     parser.add_argument('--model_path', type=str)
     parser.add_argument('--model', type=str)
     parser.add_argument('--n_trial', type=int, default=1)
-    parser.add_argument('--xmax', type=float)
+    parser.add_argument('--xmax', type=int, default=100)
     parser.add_argument('--ymin', type=float, default=-100.0)
     parser.add_argument('--ymax', type=float, default=100.0)
     #parser.add_argument('--ymin', type=float)
@@ -86,6 +86,7 @@ def main():
         #plt.plot(testI_, testRew_, label="rolling test", c="g", alpha=0.3)
 
     plt.ylim([args.ymin, args.ymax])
+    plt.xlim([0, args.xmax])
     plt.legend(fontsize=20.0)
     fname = os.path.join(model_path, "reward_{}.png".format(model))
     plt.savefig(fname, format="png", bbox_inches="tight")
