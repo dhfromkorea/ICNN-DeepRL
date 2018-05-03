@@ -75,14 +75,15 @@ def main():
         #dy = D_test_y.std(axis=0)
         #plt.errorbar(D_test_x.mean(axis=0), D_test_y.mean(axis=0), label="test", yerr=dy, fmt="o", color="b")
 
-        plt.plot(D_test_x.mean(axis=0), D_test_y.mean(axis=0), label="train", marker="x", color="b")
+        plt.plot(D_test_x.mean(axis=0), D_test_y.mean(axis=0), label="train", marker="x",
+                linestyle="--", color="b")
 
-        N = 3
-        testI = D_test_x.mean(axis=0)
-        testRew = D_test_y.mean(axis=0)
-        testI_ = testI[N:]
-        testRew_ = [sum(testRew[i-N:i])/N for i in range(N, len(testRew))]
-        plt.plot(testI_, testRew_, label="rolling test", c="g", alpha=0.3)
+        #N = 3
+        #testI = D_test_x.mean(axis=0)
+        #testRew = D_test_y.mean(axis=0)
+        #testI_ = testI[N:]
+        #testRew_ = [sum(testRew[i-N:i])/N for i in range(N, len(testRew))]
+        #plt.plot(testI_, testRew_, label="rolling test", c="g", alpha=0.3)
 
     plt.ylim([args.ymin, args.ymax])
     plt.legend()
