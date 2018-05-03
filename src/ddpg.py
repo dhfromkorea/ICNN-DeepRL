@@ -11,7 +11,7 @@ from schedules import LinearSchedule
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
-model_path = os.path.join(model_path, FLAGS.model)
+model_path = os.path.join(FLAGS.outdir, FLAGS.model)
 
 # DDPG Agent
 class Agent:
@@ -118,9 +118,11 @@ class Agent:
 
         summary_path = os.path.join(model_path, 'board', FLAGS.exp_id)
         summary_writer = tf.summary.FileWriter(summary_path, self.sess.graph)
-        tf.summary.scalar('Qvalue', tf.reduce_mean(q_train))
-        tf.summary.scalar('loss', ms_td_error)
-        tf.summary.scalar('reward', tf.reduce_mean(rew))
+
+        if FLAGS.summary:
+            tf.summary.scalar('Qvalue', tf.reduce_mean(q_train))
+            tf.summary.scalar('loss', ms_td_error)
+            tf.summary.scalar('reward', tf.reduce_mean(rew))
         merged = tf.summary.merge_all()
 
         # tf functions

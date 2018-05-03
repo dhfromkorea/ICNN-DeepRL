@@ -130,14 +130,16 @@ class Agent:
         summary_path = os.path.join(model_path, 'board', FLAGS.exp_id)
         summary_writer = tf.summary.FileWriter(summary_path, self.sess.graph)
 
-        if FLAGS.icnn_opt == 'adam':
-            tf.summary.scalar('Q', tf.reduce_mean(q))
-        elif FLAGS.icnn_opt == 'bundle_entropy':
-            tf.summary.scalar('Q', tf.reduce_mean(q_entr))
 
-        tf.summary.scalar('Q_target', tf.reduce_mean(q_target))
-        tf.summary.scalar('loss', ms_td_error)
-        tf.summary.scalar('reward', tf.reduce_mean(rew))
+        if FLAGS.summary:
+            if FLAGS.icnn_opt == 'adam':
+                tf.summary.scalar('Q', tf.reduce_mean(q))
+            elif FLAGS.icnn_opt == 'bundle_entropy':
+                tf.summary.scalar('Q', tf.reduce_mean(q_entr))
+
+            tf.summary.scalar('Q_target', tf.reduce_mean(q_target))
+            tf.summary.scalar('loss', ms_td_error)
+            tf.summary.scalar('reward', tf.reduce_mean(rew))
         merged = tf.summary.merge_all()
 
 

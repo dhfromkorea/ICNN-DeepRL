@@ -101,9 +101,10 @@ class Agent:
 
         summary_path = os.path.join(model_path, 'board', FLAGS.exp_id)
         summary_writer = tf.summary.FileWriter(summary_path, self.sess.graph)
-        tf.scalar_summary('Qvalue', tf.reduce_mean(q_train))
-        tf.scalar_summary('loss', ms_td_error)
-        tf.scalar_summary('reward', tf.reduce_mean(rew))
+        if FLAGS.summary:
+            tf.summary.scalar('Qvalue', tf.reduce_mean(q_train))
+            tf.summary.scalar('loss', ms_td_error)
+            tf.summary.scalar('reward', tf.reduce_mean(rew))
         merged = tf.summary.merge_all()
 
         # tf functions
@@ -112,7 +113,7 @@ class Agent:
             self._act_expl = Fun([obs_single, is_training], act_expl)
             self._reset = Fun([], self.ou_reset)
             self._train = Fun([obs_train, act_train, rew, obs2, term2, per_weight, is_training], [train_q,
-                loss_q, td_error, q_train, q_target], summary_list, summary_writer)
+                loss_q, td_error, q_train, q_target], merged, summary_writer)
 
         # initialize tf variables
         self.saver = tf.train.Saver(max_to_keep=1)
@@ -145,15 +146,26 @@ class Agent:
         # train
         if not test:
             self.t = self.t + 1
-            self.rm.enqueue(obs1, term, self.action, rew)
+
+            if FLAGS.use_per:
+                self.rm.add(obs1, self.action, rew, obs2, float(term))
+            else:
+                self.rm.enqueue(obs1, term, self.action, rew)
 
             if self.t > FLAGS.warmup:
                 for i in range(FLAGS.iter):
                     loss = self.train()
 
     def train(self):
-        obs, act, rew, ob2, term2, info = self.rm.minibatch(size=FLAGS.bsize)
-        _, loss = self._train(obs, act, rew, ob2, term2, True, log=FLAGS.summary, global_step=self.t)
+        if FLAGS.use_per:
+            experience = self.rm.sample(FLAGS.bsize, beta=self.beta_schedule.value(self.t))
+            (obs, act, rew, ob2, term2, weights, batch_idxes) = experience
+        else:
+            obs, act, rew, ob2, term2, info = self.rm.minibatch(size=FLAGS.bsize)
+
+        _, loss, td_error, _, _ = self._train(obs, act, rew, ob2, term2, weights, True,
+                                                 log=FLAGS.summary,
+                                                 global_step=self.t)
         return loss
 
     def __del__(self):

@@ -42,8 +42,8 @@ def lfunction(obs, theta, reuse, is_training, scope="lfunction"):
 
 def vec2trimat(vec, dim):
     L = tf.reshape(vec, [-1, dim, dim])
-    L = tf.batch_matrix_band_part(L, -1, 0) - tf.batch_matrix_diag(tf.batch_matrix_diag_part(L)) + \
-        tf.batch_matrix_diag(tf.exp(tf.batch_matrix_diag_part(L)))
+    L = tf.matrix_band_part(L, -1, 0) - tf.matrix_diag(tf.matrix_diag_part(L)) + \
+        tf.matrix_diag(tf.exp(tf.matrix_diag_part(L)))
     return L
 
 
@@ -60,7 +60,7 @@ def afunction(action, lvalue, uvalue, dimA, scope="afunction"):
         L = vec2trimat(lvalue, dimA)
 
         h1 = tf.reshape(delta, [-1, 1, dimA])
-        h1 = tf.batch_matmul(h1, L)  # batch:1:dimA
+        h1 = tf.matmul(h1, L)  # batch:1:dimA
         h1 = tf.squeeze(h1, [1])  # batch:dimA
         h2 = -tf.constant(0.5) * tf.reduce_sum(h1 * h1, 1)  # batch
 
