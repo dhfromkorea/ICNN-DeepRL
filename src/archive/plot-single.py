@@ -48,11 +48,15 @@ def main():
             D_train_y = trainData[:,1]
             D_test_x = testData[:,0]
             D_test_y = testData[:,1]
+
+            n_step_train = D_train_x.shape[0]
+            n_step_test = D_test_x.shape[0]
+
         else:
-            D_train_x = np.vstack((D_train_x, trainData[:,0]))
-            D_train_y = np.vstack((D_train_y, trainData[:,1]))
-            D_test_x = np.vstack((D_test_x, testData[:,0]))
-            D_test_y = np.vstack((D_test_y, testData[:,1]))
+            D_train_x = np.vstack((D_train_x, trainData[:n_step_train,0]))
+            D_train_y = np.vstack((D_train_y, trainData[:n_step_train,1]))
+            D_test_x = np.vstack((D_test_x, testData[:n_step_test,0]))
+            D_test_y = np.vstack((D_test_y, testData[:n_step_test,1]))
 
 
 
