@@ -137,7 +137,7 @@ class Agent:
         # initialize tf variables
         self.saver = tf.train.Saver(max_to_keep=1)
         ckpt = tf.train.latest_checkpoint(model_path + "/tf")
-        if ckpt:
+        if not FLAGS.force and ckpt:
             self.saver.restore(self.sess, ckpt)
         else:
             self.sess.run(tf.global_variables_initializer())
