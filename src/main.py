@@ -15,6 +15,7 @@ import normalized_env
 import runtime_env
 
 import time
+from tqdm import tqdm
 
 import setproctitle
 from datetime import datetime
@@ -43,7 +44,7 @@ flags.DEFINE_integer('gymseed', 0, 'random seed for openai gym')
 flags.DEFINE_integer('npseed', 0, 'random seed for numpy')
 flags.DEFINE_float('ymin', 0, 'random seed for numpy')
 flags.DEFINE_float('ymax', 1000, 'random seed for numpy')
-flags.DEFINE_float('n_trial', 5, 'number of trials')
+flags.DEFINE_integer('n_trial', 5, 'number of trials')
 
 setproctitle.setproctitle('ICNN.RL.{}.{}.{}'.format(
     FLAGS.env,FLAGS.model,FLAGS.tfseed))
@@ -64,7 +65,7 @@ elif FLAGS.model == 'ICNN':
 
 
 class Experiment(object):
-    def run(self):
+    def run(self, trial_i=0):
         self.train_timestep = 0
         self.test_timestep = 0
 
@@ -83,9 +84,10 @@ class Experiment(object):
         self.agent = Agent(dimO, dimA=dimA)
 
         model_path = os.path.join(FLAGS.outdir, FLAGS.model)
+        self.model_path = model_path
         os.makedirs(model_path, exist_ok=True)
-        test_log = open(os.path.join(model_path, 'test.log'), 'w')
-        train_log = open(os.path.join(model_path, 'train.log'), 'w')
+        test_log = open(os.path.join(model_path, 'test_{}.log'.format(trial_i)), 'w')
+        train_log = open(os.path.join(model_path, 'train_{}.log'.format(trial_i)), 'w')
 
         while self.train_timestep < FLAGS.total:
             # test
@@ -115,12 +117,9 @@ class Experiment(object):
             #print('Average train return {} after {} timestep of training.'.format(
                 #avg_reward, self.train_timestep))
 
-            #os.system('{} {}'.format(plotScr, FLAGS.outdir))
-            os.system('{} --model_path {} --model {}'.format(plotScr, model_path, FLAGS.model))
-
         #self.env.monitor.close()
-        os.makedirs(os.path.join(model_path, "tf"))
-        ckpt = os.path.join(model_path, "tf/model.ckpt")
+        os.makedirs(os.path.join(model_path, "tf"), exist_ok=True)
+        ckpt = os.path.join(model_path, "tf/model_{}.ckpt".format(trial_i))
         self.agent.saver.save(self.agent.sess, ckpt)
 
     def run_episode(self, test=True, monitor=False):
@@ -161,9 +160,18 @@ class Experiment(object):
         #print('  + Reward: {}'.format(sum_reward))
         return sum_reward, timestep
 
+    def save_plot(self):
+        os.system('{} --model_path {} --model {} --n_trial {}'.format(plotScr, self.model_path, FLAGS.model,
+            FLAGS.n_trial))
 
 def main():
-    Experiment().run()
+    exp = Experiment()
+    for i in tqdm(range(FLAGS.n_trial)):
+        print("hi")
+        with tf.Graph().as_default():
+            exp.run(i)
+        print("bye")
+    exp.save_plot()
 
 if __name__ == '__main__':
     runtime_env.run(main, FLAGS.outdir)
