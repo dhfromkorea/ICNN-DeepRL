@@ -130,7 +130,7 @@ class Experiment(object):
 
         #self.env.monitor.close()
         os.makedirs(os.path.join(model_path, "tf"), exist_ok=True)
-        ckpt = os.path.join(model_path, "tf/model_{}.ckpt".format(trial_i))
+        ckpt = os.path.join(model_path, "tf/model.ckpt")
         self.agent.saver.save(self.agent.sess, ckpt)
 
     def run_episode(self, test=True, monitor=False):
