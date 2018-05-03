@@ -68,7 +68,7 @@ def main():
         #plt.errorbar(D_train_x.mean(axis=0), D_train_y.mean(axis=0), label="train", yerr=dy, fmt="o", color="r")
         plt.plot(D_train_x.mean(axis=0), D_train_y.mean(axis=0), label="train", color="r")
     else:
-        plt.plot(D_train_x, D_train_y), label="train", color="r")
+        plt.plot(D_train_x, D_train_y, label="train", color="r")
 
     if D_test_x.shape[1] > 1:
         #testI = testData[:,0]
