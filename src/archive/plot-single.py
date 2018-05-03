@@ -23,16 +23,15 @@ def main():
     #parser.add_argument('--ymin', type=float)
     #parser.add_argument('--ymax', type=float)
     args = parser.parse_args()
+    model_path = args.model_path
+    model = args.model
+    n_trial = args.n_trial
 
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
     plt.title(model, fontsize=20.0)
     plt.xlabel('Episode', fontsize=20.0)
     plt.ylabel('Reward', fontsize=20.0)
 
-    model_path = args.model_path
-    model = args.model
-    n_trial = args.n_trial
-    t = time.time()
 
 
     D_train_x = None
