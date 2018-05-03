@@ -52,6 +52,9 @@ flags.DEFINE_float('ymin', 0, 'random seed for numpy')
 flags.DEFINE_float('ymax', 1000, 'random seed for numpy')
 flags.DEFINE_integer('n_trial', 5, 'number of trials')
 
+# hacky...
+flags.DEFINE_integer('trial_i', 0, 'trial index')
+
 setproctitle.setproctitle('ICNN.RL.{}.{}.{}'.format(
     FLAGS.env,FLAGS.model,FLAGS.tfseed))
 
@@ -107,14 +110,13 @@ class Experiment(object):
                     test=True, monitor=False)
 
                 if reward > 50.0:
-                    print("Train: reached the goal after {} steps with reward at {}-th \
-                            episode".format(timestep, reward, self.episode))
+                    print("Train: goal reached after {} steps with reward at {}-th episode".format(timestep, reward, self.episode))
 
                 reward_list.append(reward)
                 self.test_timestep += timestep
             avg_reward = np.mean(reward_list)
 
-            print('\nAverage test: return {} after {} timestep of training at {}-th episode.\n\n'.format(
+            print('Average test: return {} after {} timestep of training at {}-th episode.\n\n'.format(
                 avg_reward, self.train_timestep, self.episode))
             #test_log.write("{}\t{}\n".format(self.train_timestep, avg_reward))
             test_log.write("{}\t{}\n".format(self.episode, avg_reward))
@@ -187,11 +189,10 @@ def main():
     #        exp = Experiment()
     #        exp.run(i)
 
-    Experiment().run(0)
-
-    model_path = os.path.join(FLAGS.outdir, FLAGS.model)
-    os.system('{} --model_path {} --model {} --n_trial {}'.format(plotScr, model_path, FLAGS.model,
-            FLAGS.n_trial))
+    Experiment().run(FLAGS.trial_i)
+    #model_path = os.path.join(FLAGS.outdir, FLAGS.model)
+    #os.system('{} --model_path {} --model {} --n_trial {}'.format(plotScr, model_path, FLAGS.model,
+    #        FLAGS.n_trial))
 
 if __name__ == '__main__':
     runtime_env.run(main, FLAGS.outdir)

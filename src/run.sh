@@ -1,13 +1,36 @@
 #!/bin/bash
 
-n_trial=1
+n_trial=2
 env=MountainCarContinuous-v0
+batchnorm=true
+alpha=0.6
+beta0=0.6
 
-python3 main.py --model ICNN --env $env --outdir output --total_episode 100 --train_episode 5 \
-                --test_episode 5 --n_trial $n_trial --outheta 0.15 --ousigma 0.2 
+for trial_i in {1.."$n_trial"}
+do
+    echo "running ICNN $trial_i"
+    python3 main.py --model ICNN --env $env --outdir output --total_episode 100 --train_episode 5 \
+                    --test_episode 5 --trial_i $trial_i --outheta 0.15 --ousigma 0.2 --icnn_bn $batchnorm \
+                    --alpha $alpha --beta0 $beta0
+done
 
-python3 main.py --model DDPG --env $env --outdir output --total_episode 100 --train_episode 5 \
-                --test_episode 5 --n_trial $n_trial --outheta 0.15 --ousigma 0.1 
+python3 archive/plot-single.py --model_path output/ICNN/ --model ICNN --n_trial $n_trial
 
-python3 main.py --model NAF --env $env --outdir output --total_episode 100 --train_episode 5 \
-                --test_episode 5 --n_trial $n_trial --outheta 0.15 --ousigma 0.15
+
+for trial_i in {1.."$n_trial"}
+do
+    echo "running DDPG $trial_i"
+    python3 main.py --model DDPG --env $env --outdir output --total_episode 100 --train_episode 5 \
+                    --test_episode 5 --n_trial $n_trial --outheta 0.15 --ousigma 0.2 \
+                    --alpha $alpha --beta0 $beta0
+done
+
+
+for trial_i in {1.."$n_trial"}
+do
+    echo "running NAF $trial_i"
+    python3 main.py --model NAF --env $env --outdir output --total_episode 100 --train_episode 5 \
+                    --test_episode 5 --n_trial $n_trial --outheta 0.15 --ousigma 0.2 --naf_bn $batchnorm \
+                    --alpha $alpha --beta0 $beta0
+done
+
