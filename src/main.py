@@ -37,6 +37,7 @@ flags.DEFINE_integer('train', 5000, 'training timesteps between testing episodes
 flags.DEFINE_integer('test', 5, 'testing episodes between training timesteps')
 flags.DEFINE_integer('tmax', 999, 'maxium timesteps each episode')
 flags.DEFINE_integer('total', 100000, 'total training timesteps')
+flags.DEFINE_integer('total_episode', 100, 'total training episode')
 flags.DEFINE_float('monitor', 0.01, 'probability of monitoring a test episode')
 flags.DEFINE_string('model', 'ICNN', 'reinforcement learning model[DDPG, NAF, ICNN]')
 flags.DEFINE_integer('tfseed', 0, 'random seed for tensorflow')
@@ -162,7 +163,8 @@ class Experiment(object):
             pass
 
         #print('  + Reward: {}'.format(sum_reward))
-        self.episode += 1
+        if not test:
+            self.episode += 1
         return sum_reward, timestep
 
     def save_plot(self):
