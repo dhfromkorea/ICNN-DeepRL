@@ -39,7 +39,7 @@ def main():
     D_test_x = None
     D_test_y = None
 
-    for i in range(n_trial):
+    for i in range(1, n_trial+1):
         trainP = os.path.join(model_path, 'train_{}.log'.format(i))
         trainData = np.loadtxt(trainP).reshape(-1, 2)
         testP = os.path.join(model_path, 'test_{}.log'.format(i))
