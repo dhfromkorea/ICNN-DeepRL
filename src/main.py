@@ -68,6 +68,7 @@ class Experiment(object):
     def run(self, trial_i=0):
         self.train_timestep = 0
         self.test_timestep = 0
+        self.episode = 1
 
         # create normal
         self.env = normalized_env.make_normalized_env(gym.make(FLAGS.env))
@@ -100,7 +101,8 @@ class Experiment(object):
             avg_reward = np.mean(reward_list)
             print('Average test return {} after {} timestep of training.'.format(
                 avg_reward, self.train_timestep))
-            test_log.write("{}\t{}\n".format(self.train_timestep, avg_reward))
+            #test_log.write("{}\t{}\n".format(self.train_timestep, avg_reward))
+            test_log.write("{}\t{}\n".format(self.episode, avg_reward))
             test_log.flush()
 
             # train
@@ -111,7 +113,8 @@ class Experiment(object):
                 reward, timestep = self.run_episode(test=False, monitor=False)
                 reward_list.append(reward)
                 self.train_timestep += timestep
-                train_log.write("{}\t{}\n".format(self.train_timestep, reward))
+                #train_log.write("{}\t{}\n".format(self.train_timestep, reward))
+                train_log.write("{}\t{}\n".format(self.episode, reward))
                 train_log.flush()
             avg_reward = np.mean(reward_list)
             #print('Average train return {} after {} timestep of training.'.format(
@@ -158,6 +161,7 @@ class Experiment(object):
             pass
 
         #print('  + Reward: {}'.format(sum_reward))
+        self.episode += 1
         return sum_reward, timestep
 
     def save_plot(self):
