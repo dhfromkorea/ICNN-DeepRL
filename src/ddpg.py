@@ -11,7 +11,9 @@ from schedules import LinearSchedule
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
-model_path = os.path.join(FLAGS.outdir, FLAGS.model)
+path = os.path.dirname(os.path.realpath(__file__))
+outdir_path = os.path.abspath(os.path.join(path, FLAGS.outdir))
+model_path = os.path.join(outdir_path, FLAGS.model)
 
 # DDPG Agent
 class Agent:
