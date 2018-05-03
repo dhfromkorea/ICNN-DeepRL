@@ -43,6 +43,7 @@ flags.DEFINE_integer('gymseed', 0, 'random seed for openai gym')
 flags.DEFINE_integer('npseed', 0, 'random seed for numpy')
 flags.DEFINE_float('ymin', 0, 'random seed for numpy')
 flags.DEFINE_float('ymax', 1000, 'random seed for numpy')
+flags.DEFINE_float('n_trial', 5, 'number of trials')
 
 setproctitle.setproctitle('ICNN.RL.{}.{}.{}'.format(
     FLAGS.env,FLAGS.model,FLAGS.tfseed))
