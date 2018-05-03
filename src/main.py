@@ -101,13 +101,13 @@ class Experiment(object):
                     test=True, monitor=np.random.rand() < FLAGS.monitor)
 
                 if reward > 50.0:
-                    sys.stdout.flush()
-                    sys.stdout.write("\rreached the goal after {} steps with reward {}".format(timestep, reward))
+                    print("Train: reached the goal after {} steps with reward {}".format(timestep, reward))
 
                 reward_list.append(reward)
                 self.test_timestep += timestep
             avg_reward = np.mean(reward_list)
-            print('Average test return {} after {} timestep of training.'.format(
+
+            print('\nAverage test: return {} after {} timestep of training.\n\n'.format(
                 avg_reward, self.train_timestep))
             #test_log.write("{}\t{}\n".format(self.train_timestep, avg_reward))
             test_log.write("{}\t{}\n".format(self.episode, avg_reward))
