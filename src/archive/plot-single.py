@@ -3,11 +3,15 @@
 import argparse
 import os
 import numpy as np
+import time
 
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 plt.style.use('bmh')
+
+flags = tf.app.flags
+FLAGS = flags.FLAGS
 
 def main():
     parser = argparse.ArgumentParser()
@@ -23,26 +27,32 @@ def main():
     plt.xlabel('Timestep')
     plt.ylabel('Reward')
 
-    trainP = os.path.join(args.expDir, 'train.log')
+    model_path = os.path.join(FLAGS.outdir, FLAGS.model)
+    t = time.time()
+
+    trainP = os.path.join(model_path, 'train_{}.log'.format(FLAGS.model))
     trainData = np.loadtxt(trainP).reshape(-1, 2)
-    testP = os.path.join(args.expDir, 'test.log')
+    testP = os.path.join(model_path, 'test_{}.log'.format(FLAGS.model))
     testData = np.loadtxt(testP).reshape(-1, 2)
     if trainData.shape[0] > 1:
-        plt.plot(trainData[:,0], trainData[:,1], label='Train')
+        label = '{}_train'.format(FLAGS.model)
+        plt.plot(trainData[:,0], trainData[:,1], label=label, c="r")
     if testData.shape[0] > 1:
+        label = '{}_test'.format(FLAGS.model)
         testI = testData[:,0]
         testRew = testData[:,1]
-        plt.plot(testI, testRew, label='Test')
+        plt.plot(testI, testRew, label=label, c="b")
 
         N = 10
         testI_ = testI[N:]
         testRew_ = [sum(testRew[i-N:i])/N for i in range(N, len(testRew))]
-        plt.plot(testI_, testRew_, label='Rolling Test')
+        label = '{}_rolling'.format(FLAGS.model)
+        plt.plot(testI_, testRew_, label=label, c="g")
 
     plt.ylim([args.ymin, args.ymax])
     plt.legend()
-    fname = os.path.join(args.expDir, 'reward.pdf')
-    plt.savefig(fname)
+    fname = os.path.join(model_path, "reward.png")
+    plt.savefig(fname, format="png", bbox_inches="tight")
     print('Created {}'.format(fname))
 
 if __name__ == '__main__':
