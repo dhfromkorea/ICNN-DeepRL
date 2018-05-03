@@ -62,13 +62,15 @@ def main():
 
 
 
-    if D_train_x.shape[0] > 1:
+    if D_train_x.shape[1] > 1:
         #plt.plot(trainData[:,0], trainData[:,1], label="train", c="r")
-        dy = D_train_y.std(axis=0)
+        #dy = D_train_y.std(axis=0)
         #plt.errorbar(D_train_x.mean(axis=0), D_train_y.mean(axis=0), label="train", yerr=dy, fmt="o", color="r")
         plt.plot(D_train_x.mean(axis=0), D_train_y.mean(axis=0), label="train", color="r")
+    else:
+        plt.plot(D_train_x, D_train_y), label="train", color="r")
 
-    if D_test_x.shape[0] > 1:
+    if D_test_x.shape[1] > 1:
         #testI = testData[:,0]
         #testRew = testData[:,1]
         #plt.plot(testI, testRew, label="test", c="b")
@@ -84,6 +86,9 @@ def main():
         #testI_ = testI[N:]
         #testRew_ = [sum(testRew[i-N:i])/N for i in range(N, len(testRew))]
         #plt.plot(testI_, testRew_, label="rolling test", c="g", alpha=0.3)
+    else:
+        plt.plot(D_test_x, D_test_y, label="test", marker="x",
+                linestyle="--", color="b")
 
     plt.ylim([args.ymin, args.ymax])
     plt.xlim([0, args.xmax])
