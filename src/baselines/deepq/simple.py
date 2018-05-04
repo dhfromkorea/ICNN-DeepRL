@@ -260,6 +260,8 @@ def learn(env,
             episode_rewards[-1] += rew
             if done:
                 obs = env.reset()
+                train_log.write("{}\t{}\n".format(len(episode_rewards), episode_rewards[-1]))
+                train_log.flush()
                 episode_rewards.append(0.0)
                 reset = True
 
@@ -279,8 +281,6 @@ def learn(env,
             if t > learning_starts and t % target_network_update_freq == 0:
                 # Update target network periodically.
                 update_target()
-                train_log.write("{}\t{}\n".format(len(episode_rewards), episode_rewards[-1]))
-                train_log.flush()
 
             mean_100ep_reward = round(np.mean(episode_rewards[-101:-1]), 1)
             num_episodes = len(episode_rewards)
