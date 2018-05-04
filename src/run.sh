@@ -8,7 +8,8 @@ alpha=0.6
 beta0=0.9
 gamma=0.75
 tmax=200
-beta_iters=$tmax*$total_episode
+total_episode=100
+beta_iters=$((tmax*total_episode))
 
 for trial_i in $(seq "$n_trial")
 do
