@@ -1,3 +1,6 @@
 [submodule "src/icnn"]
 	path = src/icnn
 	url = git@github.com:locuslab/icnn.git
+[submodule "src/baselines"]
+	path = src/baselines
+	url = git@github.com:openai/baselines.git
