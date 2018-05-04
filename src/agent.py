@@ -11,7 +11,7 @@ flags.DEFINE_integer('l2size', 200, '2nd layer size')
 flags.DEFINE_integer('rmsize', 100000, 'memory size')
 
 flags.DEFINE_float('tau', 0.01, 'moving average for target network')
-flags.DEFINE_float('discount', 0.99, '')
+flags.DEFINE_float('discount', 0.99, 'gamma')
 flags.DEFINE_float('l2norm', 0.0001, 'l2 weight decay')
 flags.DEFINE_float('pl2norm', 0.001, 'policy network l2 weight decay (only for DDPG)')
 flags.DEFINE_float('rate', 0.001, 'learning rate')
