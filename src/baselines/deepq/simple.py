@@ -166,7 +166,7 @@ def learn(env,
         Wrapper over act function. Adds ability to save it and load it.
         See header of baselines/deepq/categorical.py for details on the act function.
     """
-    os.makdirs(model_path, exist_ok=True)
+    os.makedirs(model_path, exist_ok=True)
     test_log = open(os.path.join(model_path, 'test_{}.log'.format(trial_i)), 'w')
     train_log = open(os.path.join(model_path, 'train_{}.log'.format(trial_i)), 'w')
 
