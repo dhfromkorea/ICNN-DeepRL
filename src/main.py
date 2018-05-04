@@ -10,6 +10,7 @@ import json
 import gym
 import numpy as np
 import tensorflow as tf
+import tflearn
 
 import agent
 import normalized_env
@@ -34,6 +35,7 @@ flags.DEFINE_string('env', '', 'gym environment')
 flags.DEFINE_string('outdir', 'output', 'output directory')
 flags.DEFINE_string('exp_id', cur_date_time, 'experiment name')
 flags.DEFINE_boolean('force', False, 'overwrite existing results')
+flags.DEFINE_boolean('is_training', True, 'train the model')
 flags.DEFINE_integer('train', 5000, 'training timesteps between testing episodes')
 flags.DEFINE_integer('test', 5, 'testing episodes between training timesteps')
 flags.DEFINE_integer('tmax', 999, 'maxium timesteps each episode')
@@ -74,25 +76,7 @@ elif FLAGS.model == 'ICNN':
 
 
 class Experiment(object):
-    def run(self, trial_i=0):
-        self.train_timestep = 0
-        self.test_timestep = 0
-        self.episode = 1
-
-        # create normal
-        self.env = normalized_env.make_normalized_env(gym.make(FLAGS.env))
-        tf.set_random_seed(FLAGS.tfseed)
-        np.random.seed(FLAGS.npseed)
-        #self.env.monitor.start(os.path.join(FLAGS.outdir, 'monitor'), force=FLAGS.force)
-        self.env.seed(FLAGS.gymseed)
-        #gym.logger.setLevel(gym.logging.WARNING)
-
-        dimO = self.env.observation_space.shape
-        dimA = self.env.action_space.shape
-        pprint.pprint(self.env.spec.__dict__)
-
-        self.agent = Agent(dimO, dimA=dimA)
-
+    def train(self, trial_i):
         model_path = os.path.join(FLAGS.outdir, FLAGS.model)
         self.model_path = model_path
         os.makedirs(model_path, exist_ok=True)
@@ -144,6 +128,85 @@ class Experiment(object):
         ckpt = os.path.join(model_path, "tf/model.ckpt")
         self.agent.saver.save(self.agent.sess, ckpt)
 
+    def run(self, trial_i=0):
+        self.train_timestep = 0
+        self.test_timestep = 0
+        self.episode = 1
+
+        # create normal
+        self.env = normalized_env.make_normalized_env(gym.make(FLAGS.env))
+        tf.set_random_seed(FLAGS.tfseed)
+        np.random.seed(FLAGS.npseed)
+        #self.env.monitor.start(os.path.join(FLAGS.outdir, 'monitor'), force=FLAGS.force)
+        self.env.seed(FLAGS.gymseed)
+        #gym.logger.setLevel(gym.logging.WARNING)
+
+        dimO = self.env.observation_space.shape
+        dimA = self.env.action_space.shape
+        pprint.pprint(self.env.spec.__dict__)
+
+        self.agent = Agent(dimO, dimA=dimA)
+
+
+        if FLAGS.is_training:
+            self.train(trial_i)
+        else:
+            tflearn.is_training(False, session=self.agent.sess)
+            # save some plots of q for arbitrary actions
+            # hard code for mountaincar
+            pos = np.linspace(-1.2, 0.6, 5)
+            vel = np.linspace(-0.07, 0.07, 5)
+            xx, yy = np.meshgrid(pos, vel)
+            states_ = np.vstack((xx.flatten(), yy.flatten())).T
+            states = [self.env.filter_observation(o) for o in states_]
+
+            #action_samples = [self.env.action_space.sample() for _ in range(n_sample)]
+            actions_ = np.linspace(-1.0, 1.0, 30)
+            actions = [self.env.filter_action(a) for a in actions_]
+            try:
+                neg_q_res = {}
+                for i, obs in enumerate(states):
+                    neg_q_res[i] = []
+                    for act in actions:
+                        if len(obs.shape) == 1:
+                            obs = np.expand_dims(obs, axis=0)
+                        if len(act.shape) == 1:
+                            act = np.expand_dims(act, axis=0)
+
+                        if FLAGS.model == 'DDPG':
+                            import pdb;pdb.set_trace()
+                            negQ = -np.asscalar(self.agent._fg(obs, act, self.agent.theta_q)[0])
+                        elif FLAGS.model == 'NAF':
+                            pass
+                        elif FLAGS.model == 'ICNN':
+                            negQ = np.asscalar(self.agent._fg(obs, act)[0])
+
+                        neg_q_res[i].append(negQ)
+            except:
+                import pdb;pdb.set_trace()
+            import matplotlib as mpl
+            mpl.use("Agg")
+            import matplotlib.pyplot as plt
+            plt.style.use("seaborn-whitegrid")
+
+            fig, axes = plt.subplots(5, 5, figsize=(25, 25))
+
+            for i, obs in enumerate(states):
+                nq = np.array(neg_q_res[i])
+                ax = axes[i // 5, i % 5]
+                label = "pos:{:.2f}\nvel:{:.2f}".format(obs[0], obs[1])
+                ax.set_xlabel("Action", fontsize=15.0)
+                ax.set_ylabel("Negative Q", fontsize=15.0)
+                ax.plot(actions, nq, label=label, marker="o", linestyle="--", color="b", alpha=0.5)
+                ax.scatter(actions[nq.argmin()], nq[nq.argmin()], marker="*", color="r", s=500.0)
+                ax.legend(loc="best", fontsize=20.0)
+
+            plt.savefig("neg_q_{}.png".format(FLAGS.model), format="png", bbox_inches="tight")
+            plt.close(fig)
+
+
+
+
     def run_episode(self, test=True, monitor=False):
         #self.env.monitor.configure(lambda _: monitor)
         observation = self.env.reset()
@@ -152,6 +215,7 @@ class Experiment(object):
         timestep = 0
         term = False
         times = {'act': [], 'envStep': [], 'obs': []}
+
         while not term:
             start = time.clock()
             action = self.agent.act(test=test)
