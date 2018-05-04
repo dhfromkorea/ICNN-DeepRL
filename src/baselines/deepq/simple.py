@@ -80,6 +80,8 @@ def load(path):
 def learn(env,
           q_func,
           n_action,
+          model_path,
+          trial_i,
           lr=5e-4,
           max_timesteps=100000,
           buffer_size=50000,
@@ -98,7 +100,7 @@ def learn(env,
           prioritized_replay_beta_iters=None,
           prioritized_replay_eps=1e-6,
           param_noise=False,
-          callback=None):
+          callback=None)
     """Train a deepq model.
 
     Parameters
@@ -164,6 +166,10 @@ def learn(env,
         Wrapper over act function. Adds ability to save it and load it.
         See header of baselines/deepq/categorical.py for details on the act function.
     """
+    os.makdirs(model_path, exist_ok=True)
+    test_log = open(os.path.join(model_path, 'test_{}.log'.format(trial_i)), 'w')
+    train_log = open(os.path.join(model_path, 'train_{}.log'.format(trial_i)), 'w')
+
     # Create all the functions necessary to train the model
 
     sess = tf.Session()
@@ -273,6 +279,8 @@ def learn(env,
             if t > learning_starts and t % target_network_update_freq == 0:
                 # Update target network periodically.
                 update_target()
+                train_log.write("{}\t{}\n".format(len(episode_rewards), episode_rewards[-1]))
+                train_log.flush()
 
             mean_100ep_reward = round(np.mean(episode_rewards[-101:-1]), 1)
             num_episodes = len(episode_rewards)
@@ -282,6 +290,10 @@ def learn(env,
                 logger.record_tabular("mean 100 episode reward", mean_100ep_reward)
                 logger.record_tabular("% time spent exploring", int(100 * exploration.value(t)))
                 logger.dump_tabular()
+
+                mean_5ep_reward = round(np.mean(episode_rewards[-5:-1]), 1)
+                test_log.write("{}\t{}\n".format(len(episode_rewards), mean_5ep_reward))
+                test_log.flush()
 
             if (checkpoint_freq is not None and t > learning_starts and
                     num_episodes > 100 and t % checkpoint_freq == 0):
