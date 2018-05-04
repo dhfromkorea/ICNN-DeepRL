@@ -68,6 +68,10 @@ def make_normalized_env(env):
             ''' has to be applied manually otherwise it makes the reward_threshold invalid '''
             return self.reward_k * reward + self.reward_b
 
+        def clip_reward(self, reward):
+            ''' has to be applied manually otherwise it makes the reward_threshold invalid '''
+            return np.clip(reward, -1.0, 1.0)
+
         def step(self, action):
             ac_f = np.clip(self.filter_action(action), self.action_space.low, self.action_space.high)
             obs, reward, term, info = env_type.step(self, ac_f)  # super function

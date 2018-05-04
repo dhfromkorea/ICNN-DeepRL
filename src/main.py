@@ -162,7 +162,8 @@ class Experiment(object):
             times['envStep'].append(time.clock()-start)
             term = (not test and timestep + 1 >= FLAGS.tmax) or term
 
-            filtered_reward = self.env.filter_reward(reward)
+            #filtered_reward = self.env.filter_reward(reward)
+            filtered_reward = self.env.clip_reward(reward)
 
             start = time.clock()
             self.agent.observe(filtered_reward, term, observation, test=test)
