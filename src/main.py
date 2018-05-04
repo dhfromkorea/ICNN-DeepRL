@@ -224,7 +224,8 @@ class Experiment(object):
             start = time.clock()
             observation, reward, term, info = self.env.step(action)
             times['envStep'].append(time.clock()-start)
-            term = (not test and timestep + 1 >= FLAGS.tmax) or term
+            #term = (not test and timestep + 1 >= FLAGS.tmax) or term
+            term = (timestep + 1 >= FLAGS.tmax) or term
 
             filtered_reward = self.env.filter_reward(reward)
             #filtered_reward = self.env.clip_reward(reward)
