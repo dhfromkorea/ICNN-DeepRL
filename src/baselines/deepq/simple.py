@@ -79,6 +79,7 @@ def load(path):
 
 def learn(env,
           q_func,
+          n_action,
           lr=5e-4,
           max_timesteps=100000,
           buffer_size=50000,
@@ -177,7 +178,8 @@ def learn(env,
     act, train, update_target, debug = deepq.build_train(
         make_obs_ph=make_obs_ph,
         q_func=q_func,
-        num_actions=env.action_space.n,
+        #num_actions=env.action_space.n,
+        num_actions=n_action,
         optimizer=tf.train.AdamOptimizer(learning_rate=lr),
         gamma=gamma,
         grad_norm_clipping=10,
@@ -187,7 +189,8 @@ def learn(env,
     act_params = {
         'make_obs_ph': make_obs_ph,
         'q_func': q_func,
-        'num_actions': env.action_space.n,
+        #'num_actions': env.action_space.n,
+        'num_actions': n_action,
     }
 
     act = ActWrapper(act, act_params)
@@ -234,7 +237,9 @@ def learn(env,
                 # policy is comparable to eps-greedy exploration with eps = exploration.value(t).
                 # See Appendix C.1 in Parameter Space Noise for Exploration, Plappert et al., 2017
                 # for detailed explanation.
-                update_param_noise_threshold = -np.log(1. - exploration.value(t) + exploration.value(t) / float(env.action_space.n))
+                #update_param_noise_threshold = -np.log(1. - exploration.value(t) + exploration.value(t) / float(env.action_space.n))
+                update_param_noise_threshold = -np.log(1. - exploration.value(t) +
+                        exploration.value(t) / float(n_action))
                 kwargs['reset'] = reset
                 kwargs['update_param_noise_threshold'] = update_param_noise_threshold
                 kwargs['update_param_noise_scale'] = True
