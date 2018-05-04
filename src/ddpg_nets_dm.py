@@ -24,7 +24,8 @@ def theta_p(dimO, dimA, l1, l2):
 
 
 def policy(obs, theta, name='policy'):
-    with tf.variable_op_scope([obs], name, name):
+    with tf.variable_scope(name):
+    #with tf.variable_scope([obs], name, name):
         h0 = tf.identity(obs, name='h0-obs')
         h1 = tf.nn.relu(tf.matmul(h0, theta[0]) + theta[1], name='h1')
         h2 = tf.nn.relu(tf.matmul(h1, theta[2]) + theta[3], name='h2')
@@ -46,11 +47,12 @@ def theta_q(dimO, dimA, l1, l2):
 
 
 def qfunction(obs, act, theta, name="qfunction"):
-    with tf.variable_op_scope([obs, act], name, name):
+    #with tf.variable_scope([obs, act], name, name):
+    with tf.variable_scope(name):
         h0 = tf.identity(obs, name='h0-obs')
         h0a = tf.identity(act, name='h0-act')
         h1 = tf.nn.relu(tf.matmul(h0, theta[0]) + theta[1], name='h1')
-        h1a = tf.concat(1, [h1, act])
+        h1a = tf.concat([h1, act], 1)
         h2 = tf.nn.relu(tf.matmul(h1a, theta[2]) + theta[3], name='h2')
         qs = tf.matmul(h2, theta[4]) + theta[5]
         q = tf.squeeze(qs, [1], name='h3-q')

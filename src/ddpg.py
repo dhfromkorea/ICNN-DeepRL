@@ -5,15 +5,18 @@ import tensorflow as tf
 
 import ddpg_nets_dm
 from replay_memory import ReplayMemory
+from experience_replay import PrioritizedReplayBuffer
+from schedules import LinearSchedule
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
+path = os.path.dirname(os.path.realpath(__file__))
+outdir_path = os.path.abspath(os.path.join(path, FLAGS.outdir))
+model_path = os.path.join(outdir_path, FLAGS.model)
 
 # DDPG Agent
-#
 class Agent:
-
     def __init__(self, dimO, dimA):
         dimA = list(dimA)
         dimO = list(dimO)
@@ -30,7 +33,15 @@ class Agent:
         ousigma = FLAGS.ousigma
 
         # init replay memory
-        self.rm = ReplayMemory(FLAGS.rmsize, dimO, dimA)
+
+        if FLAGS.use_per:
+            self.rm = PrioritizedReplayBuffer(FLAGS.rmsize, alpha=FLAGS.alpha)
+            self.beta_schedule = LinearSchedule(FLAGS.beta_iters,
+                                                initial_p=FLAGS.beta0,
+                                                final_p=1.0)
+        else:
+            self.rm = ReplayMemory(FLAGS.rmsize, dimO, dimA)
+
         # start tf session
         self.sess = tf.Session(config=tf.ConfigProto(
             inter_op_parallelism_threads=FLAGS.thread,
@@ -65,6 +76,9 @@ class Agent:
         obs2 = tf.placeholder(tf.float32, [FLAGS.bsize] + dimO, "obs2")
         term2 = tf.placeholder(tf.bool, [FLAGS.bsize], "term2")
 
+        # experience replay
+        per_weight = tf.placeholder(tf.float32, [None], "per_weight")
+
         # policy loss
         act_train_policy = nets.policy(obs, self.theta_p)
         q_train_policy = nets.qfunction(obs, act_train_policy, self.theta_q)
@@ -80,14 +94,20 @@ class Agent:
 
         # q
         q_train = nets.qfunction(obs, act_train, self.theta_q)
+
         # q targets
         act2 = nets.policy(obs2, theta=self.theta_pt)
         q2 = nets.qfunction(obs2, act2, theta=self.theta_qt)
-        q_target = tf.stop_gradient(tf.select(term2, rew, rew + discount * q2))
+        q_target = tf.stop_gradient(tf.where(term2, rew, rew + discount * q2))
         # q_target = tf.stop_gradient(rew + discount * q2)
         # q loss
         td_error = q_train - q_target
-        ms_td_error = tf.reduce_mean(tf.square(td_error), 0)
+
+        if FLAGS.use_per:
+            ms_td_error = tf.reduce_sum(tf.multiply(tf.square(td_error), per_weight), 0)
+        else:
+            ms_td_error = tf.reduce_mean(tf.square(td_error), 0)
+
         wd_q = tf.add_n([l2norm * tf.nn.l2_loss(var) for var in self.theta_q])  # weight decay
         loss_q = ms_td_error + wd_q
         # q optimization
@@ -98,25 +118,28 @@ class Agent:
             train_q = tf.group(update_qt)
 
 
-        import pdb;pdb.set_trace()
+        summary_path = os.path.join(model_path, 'board', FLAGS.exp_id)
+        summary_writer = tf.summary.FileWriter(summary_path, self.sess.graph)
 
-        summary_writer = tf.train.SummaryWriter(os.path.join(FLAGS.outdir, 'board', FLAGS.exp_id), self.sess.graph)
-        summary_list = []
-        summary_list.append(tf.summary.scalar('Qvalue', tf.reduce_mean(q_train)))
-        summary_list.append(tf.summary.scalar('loss', ms_td_error))
-        summary_list.append(tf.summary.scalar('reward', tf.reduce_mean(rew)))
+        if FLAGS.summary:
+            tf.summary.scalar('Qvalue', tf.reduce_mean(q_train))
+            tf.summary.scalar('loss', ms_td_error)
+            tf.summary.scalar('reward', tf.reduce_mean(rew))
+        merged = tf.summary.merge_all()
 
         # tf functions
         with self.sess.as_default():
             self._act_test = Fun(obs, act_test)
             self._act_expl = Fun(obs, act_expl)
             self._reset = Fun([], self.ou_reset)
-            self._train = Fun([obs, act_train, rew, obs2, term2], [train_p, train_q, loss_q], summary_list, summary_writer)
+            self._train = Fun([obs, act_train, rew, obs2, term2, per_weight], [train_p, train_q,
+                loss_q, td_error, q, q_target],
+                 merged, summary_writer)
 
         # initialize tf variables
         self.saver = tf.train.Saver(max_to_keep=1)
-        ckpt = tf.train.latest_checkpoint(FLAGS.outdir + "/tf")
-        if ckpt:
+        ckpt = tf.train.latest_checkpoint(model_path + "/tf")
+        if not FLAGS.force and ckpt:
             self.saver.restore(self.sess, ckpt)
         else:
             self.sess.run(tf.global_variables_initializer())
@@ -143,15 +166,26 @@ class Agent:
         # train
         if not test:
             self.t = self.t + 1
-            self.rm.enqueue(obs1, term, self.action, rew)
+
+            if FLAGS.use_per:
+                self.rm.add(obs1, self.action, rew, obs2, float(term))
+            else:
+                self.rm.enqueue(obs1, term, self.action, rew)
 
             if self.t > FLAGS.warmup:
                 for i in range(FLAGS.iter):
                     loss = self.train()
 
     def train(self):
-        obs, act, rew, ob2, term2, info = self.rm.minibatch(size=FLAGS.bsize)
-        _, _, loss = self._train(obs, act, rew, ob2, term2, log=FLAGS.summary, global_step=self.t)
+        if FLAGS.use_per:
+            experience = self.rm.sample(FLAGS.bsize, beta=self.beta_schedule.value(self.t))
+            (obs, act, rew, ob2, term2, weights, batch_idxes) = experience
+        else:
+            obs, act, rew, ob2, term2, info = self.rm.minibatch(size=FLAGS.bsize)
+
+        _, _, loss, td_error, _, _ = self._train(obs, act, rew, ob2, term2, weights,
+                                                 log=FLAGS.summary,
+                                                 global_step=self.t)
         return loss
 
     def __del__(self):
@@ -159,7 +193,6 @@ class Agent:
 
 
 # Tensorflow utils
-#
 class Fun:
     """ Creates a python function that maps between inputs and outputs in the computational graph. """
 
