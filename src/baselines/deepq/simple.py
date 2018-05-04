@@ -100,7 +100,7 @@ def learn(env,
           prioritized_replay_beta_iters=None,
           prioritized_replay_eps=1e-6,
           param_noise=False,
-          callback=None)
+          callback=None):
     """Train a deepq model.
 
     Parameters
