@@ -16,11 +16,11 @@ tensorboard --logdir=output/board/
 
 ### MountainCarContinuous-v0
 
-![negative q][src/figures/neg_q.png]
-![simple neural network with discretized action space][src/figures/reward_DNN.png]
-![icnn][src/figures/reward_ICNN.png]
-![naf][src/figures/reward_NAF.png]
-![ddpg][src/figures/reward_DDPG.png]
+![negative q](src/figures/neg_q.png)
+![simple neural network with discretized action space](src/figures/reward_DNN.png)
+![icnn](src/figures/reward_ICNN.png)
+![naf](src/figures/reward_NAF.png)
+![ddpg](src/figures/reward_DDPG.png)
 
 
 ## Acknowledgements
