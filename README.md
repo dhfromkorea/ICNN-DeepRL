@@ -1,5 +1,7 @@
 # Application of Input Convex Neural Network
 - an AM221 project
+# Paper
+- https://bit.ly/2SDMk0Q
 
 ## getting started
 ```bash
