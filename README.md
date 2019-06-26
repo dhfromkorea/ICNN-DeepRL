@@ -1,5 +1,6 @@
 # Application of Input Convex Neural Network
-- an AM221 project
+- a project for Convex Optimization (AM221) done in collaboration with Srivatsan Srinivasan.
+
 # Paper
 - https://bit.ly/2SDMk0Q
 
